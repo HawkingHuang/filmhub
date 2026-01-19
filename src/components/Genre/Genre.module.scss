@@ -1,0 +1,89 @@
+.genre {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding: 24px 0 64px;
+
+  .row {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow: hidden;
+
+    .rowHeader {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+
+      .title {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--color-black);
+      }
+
+      .nav {
+        display: flex;
+        gap: 8px;
+
+        .navButton {
+          width: 32px;
+          height: 32px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 50%;
+          background: var(--color-black);
+          color: var(--color-white);
+          cursor: pointer;
+        }
+      }
+    }
+
+    .slide {
+      height: auto;
+    }
+
+    :global(.swiper) {
+      width: 100%;
+      overflow: hidden;
+    }
+
+    :global(.swiper-wrapper) {
+      width: 100%;
+    }
+
+    .card {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+
+      .poster {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        object-fit: cover;
+        border-radius: 8px;
+        display: block;
+      }
+
+      .posterFallback {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .skeleton {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        border-radius: 8px;
+        display: block;
+      }
+
+      .cardTitle {
+        font-size: 18px;
+        font-weight: 600;
+      }
+    }
+  }
+}

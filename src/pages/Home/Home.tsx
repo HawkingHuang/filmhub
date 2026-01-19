@@ -1,5 +1,11 @@
+import Genre from "../../components/Genre/Genre";
+
 function Home() {
-  return <div></div>;
+  return (
+    <>
+      <Genre />
+    </>
+  );
 }
 
 export default Home;
