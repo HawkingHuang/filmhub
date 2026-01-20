@@ -1,28 +1,15 @@
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
-import type { Swiper as SwiperType } from "swiper";
+import type { NavigationOptions } from "swiper/types";
 import "swiper/css";
 import "swiper/css/navigation";
-import styles from "./Genre.module.scss";
 import { ThickArrowLeftIcon, ThickArrowRightIcon } from "@radix-ui/react-icons";
 import { Skeleton } from "@radix-ui/themes";
-
-type TmdbMovie = {
-  id: number;
-  title?: string;
-  name?: string;
-  poster_path: string | null;
-  backdrop_path: string | null;
-};
-
-type TmdbResponse = {
-  results: TmdbMovie[];
-};
-
-const API_BASE_URL = "https://api.themoviedb.org/3";
-const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/original";
+import type { TmdbResponse, GenreRowProps } from "../../types/genreTypes";
+import { API_BASE_URL, IMAGE_BASE_URL } from "../../lib/api";
+import styles from "./Genre.module.scss";
 
 const GENRES = [
   { key: "trending", title: "Trending", endpoint: "/trending/all/day" },
@@ -77,54 +64,27 @@ const fetchMovies = async (endpoint: string, params?: Record<string, string>) =>
   return (await response.json()) as TmdbResponse;
 };
 
-type GenreRowProps = {
-  title: string;
-  endpoint: string;
-  withGenres?: number;
-};
-
 function GenreRow({ title, endpoint, withGenres }: GenreRowProps) {
   const prevRef = useRef<HTMLButtonElement | null>(null);
   const nextRef = useRef<HTMLButtonElement | null>(null);
-  const [navReady, setNavReady] = useState(false);
-  const [swiperInstance, setSwiperInstance] = useState<SwiperType | null>(null);
-
-  useEffect(() => {
-    if (prevRef.current && nextRef.current) {
-      setNavReady(true);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!swiperInstance || !prevRef.current || !nextRef.current) return;
-
-    if (typeof swiperInstance.params.navigation !== "boolean") {
-      swiperInstance.params.navigation.prevEl = prevRef.current;
-      swiperInstance.params.navigation.nextEl = nextRef.current;
-    } else {
-      swiperInstance.params.navigation = {
-        prevEl: prevRef.current,
-        nextEl: nextRef.current,
-      };
-    }
-
-    swiperInstance.navigation.init();
-    swiperInstance.navigation.update();
-  }, [swiperInstance]);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["tmdb", title, endpoint, withGenres],
     queryFn: () => fetchMovies(endpoint, withGenres ? { with_genres: String(withGenres) } : undefined),
   });
 
-  const movies = data?.results ?? [];
+  const movies = useMemo(() => {
+    return data?.results ?? [];
+  }, [data]);
 
   // Preload all images for this row and only show images after all finished
   const [preloaded, setPreloaded] = useState(false);
-  const imageUrls = movies
-    .map((m) => m.backdrop_path ?? m.poster_path)
-    .filter((p): p is string => Boolean(p))
-    .map((p) => `${IMAGE_BASE_URL}${p}`);
+  const imageUrls = useMemo(() => {
+    return movies
+      .map((m) => m.backdrop_path ?? m.poster_path)
+      .filter((p): p is string => Boolean(p))
+      .map((p) => `${IMAGE_BASE_URL}${p}`);
+  }, [movies]);
 
   useEffect(() => {
     setPreloaded(false);
@@ -137,12 +97,13 @@ function GenreRow({ title, endpoint, withGenres }: GenreRowProps) {
     let counter = 0;
     const imgs: HTMLImageElement[] = [];
 
-    imageUrls.forEach((src) => {
+    const preloadUrls = imageUrls.slice(0, 4);
+    preloadUrls.forEach((src) => {
       const img = new Image();
       const onFinish = () => {
         if (!mounted) return;
         counter += 1;
-        if (counter >= imageUrls.length) setPreloaded(true);
+        if (counter >= preloadUrls.length) setPreloaded(true);
       };
       img.onload = onFinish;
       img.onerror = onFinish;
@@ -157,7 +118,7 @@ function GenreRow({ title, endpoint, withGenres }: GenreRowProps) {
         i.onerror = null;
       });
     };
-  }, [imageUrls.join("|")]);
+  }, [imageUrls]);
 
   return (
     <section className={styles.row}>
@@ -173,15 +134,20 @@ function GenreRow({ title, endpoint, withGenres }: GenreRowProps) {
         </div>
       </div>
 
-      {!isLoading && !isError && navReady && (
+      {!isLoading && !isError && (
         <>
           <Swiper
             modules={[Navigation]}
             slidesPerView={4}
             slidesPerGroup={4}
             spaceBetween={16}
-            navigation={false}
-            onSwiper={setSwiperInstance}
+            onBeforeInit={(swiper) => {
+              // Attach navigation elements before Swiper initializes
+              const nav = swiper.params.navigation as NavigationOptions;
+              nav.prevEl = prevRef.current;
+              nav.nextEl = nextRef.current;
+            }}
+            navigation={true}
             speed={500}
             grabCursor
             touchRatio={1}
