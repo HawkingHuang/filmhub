@@ -58,15 +58,31 @@ export const fetchMovieDetail = async (movieId: string) => {
 };
 
 export const fetchRecommendations = async (movieId: string) => {
-  const url = new URL(`${API_BASE_URL}/movie/${movieId}/recommendations`);
-  url.searchParams.set("api_key", getApiKey());
+  const base = `${API_BASE_URL}/movie/${movieId}/recommendations`;
+  const apiKey = getApiKey();
+
+  // randomly pick page 1 or 2
+  const page = Math.random() < 0.5 ? 1 : 2;
+  const url = new URL(base);
+  url.searchParams.set("api_key", apiKey);
   url.searchParams.set("language", "en-US");
+  url.searchParams.set("page", String(page));
 
   const response = await fetch(url.toString());
   if (!response.ok) {
     throw new Error("Failed to fetch recommendations");
   }
-  return (await response.json()) as { results: MovieRecommendation[] };
+  const data = (await response.json()) as { results: MovieRecommendation[] };
+
+  const items = data.results ?? [];
+  // shuffle (Fisher-Yates) and pick up to 4
+  const shuffled = items.slice();
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  const selected = shuffled.slice(0, 4);
+  return { results: selected };
 };
 
 export const fetchCredits = async (movieId: string) => {

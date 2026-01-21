@@ -2,9 +2,9 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, Link } from "react-router-dom";
 import { POSTER_BASE_URL, PROFILE_BASE_URL } from "../../lib/api";
-import type { MovieRecommendation } from "../../types/movieTypes";
 import { fetchMovieDetail, fetchRecommendations, fetchCredits, fetchVideos } from "../../utils/apiUtils";
 import { formatRuntime } from "../../utils/commonUtils";
+import type { MovieRecommendation } from "../../types/movieTypes";
 import styles from "./Movie.module.scss";
 
 function Movie() {
@@ -13,11 +13,6 @@ function Movie() {
   const { data, isLoading, isError } = useQuery({
     queryKey: ["movie", id],
     queryFn: () => fetchMovieDetail(id ?? ""),
-    enabled: Boolean(id),
-  });
-  const { data: recommendationsData } = useQuery({
-    queryKey: ["movie", id, "recommendations"],
-    queryFn: () => fetchRecommendations(id ?? ""),
     enabled: Boolean(id),
   });
   const { data: creditsData } = useQuery({
@@ -30,6 +25,11 @@ function Movie() {
     queryFn: () => fetchVideos(id ?? ""),
     enabled: Boolean(id),
   });
+  const { data: recommendationsData } = useQuery({
+    queryKey: ["movie", id, "recommendations"],
+    queryFn: () => fetchRecommendations(id ?? ""),
+    enabled: Boolean(id),
+  });
 
   const posterUrl = useMemo(() => {
     if (!data?.poster_path) return null;
@@ -37,7 +37,7 @@ function Movie() {
   }, [data?.poster_path]);
 
   const recommendations = useMemo(() => {
-    return recommendationsData?.results?.slice(0, 4) ?? [];
+    return recommendationsData?.results ?? [];
   }, [recommendationsData]);
 
   const castMembers = useMemo(() => {
@@ -46,7 +46,7 @@ function Movie() {
 
   const directorName = useMemo(() => {
     const crew = creditsData?.crew ?? [];
-    const director = crew.find((c) => c.job === "Director" || c.job === "director");
+    const director = crew.find((c) => (c.job ?? "").toLowerCase() === "director");
     return director?.name ?? "—";
   }, [creditsData]);
 
@@ -120,11 +120,13 @@ function Movie() {
             {castMembers.map((member) => {
               const profileUrl = member.profile_path ? `${PROFILE_BASE_URL}${member.profile_path}` : null;
               return (
-                <div key={member.id} className={styles.castItem}>
-                  {profileUrl ? <img className={styles.castImage} src={profileUrl} alt={member.name} /> : <div className={styles.castImageFallback} />}
-                  <div className={styles.castName}>{member.name}</div>
-                  <div className={styles.castCharacter}>{member.character || "—"}</div>
-                </div>
+                <Link key={member.id} to={`/actors/${member.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+                  <div className={styles.castItem}>
+                    {profileUrl ? <img className={styles.castImage} src={profileUrl} alt={member.name} /> : <div className={styles.castImageFallback} />}
+                    <div className={styles.castName}>{member.name}</div>
+                    <div className={styles.castCharacter}>{member.character || "—"}</div>
+                  </div>
+                </Link>
               );
             })}
           </div>
