@@ -1,15 +1,20 @@
 @use "./variables";
 @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&display=swap");
 
+html body[data-scroll-locked] {
+  margin-right: 0 !important;
+}
+
 html {
   font-family: "Playfair Display", Georgia, serif;
+  scrollbar-gutter: stable;
 }
 
 body {
   margin: 0;
 
   .container {
-    width: 1500px;
+    max-width: 1500px;
     margin: 0 auto;
   }
 

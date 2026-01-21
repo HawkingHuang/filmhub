@@ -1,9 +1,9 @@
 import { API_BASE_URL } from "../lib/api";
 import type { TmdbResponse } from "../types/genreTypes";
 import type { MovieDetail, MovieRecommendation, CreditsResponse, VideosResponse } from "../types/movieTypes";
+import type { ActorDetail, ActorCreditsResponse } from "../types/actorTypes";
 
 const REQUIRED_PARAMS: Record<string, string> = {
-  language: "en-US",
   sort_by: "popularity.desc",
   page: "1",
 };
@@ -18,10 +18,14 @@ export const getApiKey = (): string => {
   return key;
 };
 
+const attachAuthParams = (url: URL) => {
+  url.searchParams.set("api_key", getApiKey());
+  url.searchParams.set("language", "en-US");
+};
+
 export const buildUrl = (endpoint: string, params?: Record<string, string>) => {
   const url = new URL(`${API_BASE_URL}${endpoint}`);
-  const apiKey = getApiKey();
-  url.searchParams.set("api_key", apiKey);
+  attachAuthParams(url);
   Object.entries(REQUIRED_PARAMS).forEach(([key, value]) => {
     if (key === "page") {
       url.searchParams.set(key, getRandomPage(10));
@@ -47,8 +51,7 @@ export const fetchMovies = async (endpoint: string, params?: Record<string, stri
 
 export const fetchMovieDetail = async (movieId: string) => {
   const url = new URL(`${API_BASE_URL}/movie/${movieId}`);
-  url.searchParams.set("api_key", getApiKey());
-  url.searchParams.set("language", "en-US");
+  attachAuthParams(url);
 
   const response = await fetch(url.toString());
   if (!response.ok) {
@@ -59,13 +62,10 @@ export const fetchMovieDetail = async (movieId: string) => {
 
 export const fetchRecommendations = async (movieId: string) => {
   const base = `${API_BASE_URL}/movie/${movieId}/recommendations`;
-  const apiKey = getApiKey();
-
   // randomly pick page 1 or 2
   const page = Math.random() < 0.5 ? 1 : 2;
   const url = new URL(base);
-  url.searchParams.set("api_key", apiKey);
-  url.searchParams.set("language", "en-US");
+  attachAuthParams(url);
   url.searchParams.set("page", String(page));
 
   const response = await fetch(url.toString());
@@ -87,8 +87,7 @@ export const fetchRecommendations = async (movieId: string) => {
 
 export const fetchCredits = async (movieId: string) => {
   const url = new URL(`${API_BASE_URL}/movie/${movieId}/credits`);
-  url.searchParams.set("api_key", getApiKey());
-  url.searchParams.set("language", "en-US");
+  attachAuthParams(url);
 
   const response = await fetch(url.toString());
   if (!response.ok) {
@@ -99,12 +98,33 @@ export const fetchCredits = async (movieId: string) => {
 
 export const fetchVideos = async (movieId: string) => {
   const url = new URL(`${API_BASE_URL}/movie/${movieId}/videos`);
-  url.searchParams.set("api_key", getApiKey());
-  url.searchParams.set("language", "en-US");
+  attachAuthParams(url);
 
   const response = await fetch(url.toString());
   if (!response.ok) {
     throw new Error("Failed to fetch videos");
   }
   return (await response.json()) as VideosResponse;
+};
+
+export const fetchActorDetail = async (personId: string) => {
+  const url = new URL(`${API_BASE_URL}/person/${personId}`);
+  attachAuthParams(url);
+
+  const response = await fetch(url.toString());
+  if (!response.ok) {
+    throw new Error("Failed to fetch actor details");
+  }
+  return (await response.json()) as ActorDetail;
+};
+
+export const fetchActorCredits = async (personId: string) => {
+  const url = new URL(`${API_BASE_URL}/person/${personId}/movie_credits`);
+  attachAuthParams(url);
+
+  const response = await fetch(url.toString());
+  if (!response.ok) {
+    throw new Error("Failed to fetch actor credits");
+  }
+  return (await response.json()) as ActorCreditsResponse;
 };
