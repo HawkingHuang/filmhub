@@ -6,6 +6,8 @@ export type MovieDetail = {
   release_date: string;
   runtime: number | null;
   genres: { id: number; name: string }[];
+  imdb_id: string;
+  imdb_rating: string | null;
 };
 
 export type MovieRecommendation = {

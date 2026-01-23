@@ -19,6 +19,10 @@ export const getApiKey = (): string => {
   return key;
 };
 
+export const getOmdbApiKey = (): string | undefined => {
+  return import.meta.env.VITE_OMDB_API_KEY as string | undefined;
+};
+
 const attachAuthParams = (url: URL) => {
   url.searchParams.set("api_key", getApiKey());
   url.searchParams.set("language", "en-US");
@@ -58,7 +62,26 @@ export const fetchMovieDetail = async (movieId: string) => {
   if (!response.ok) {
     throw new Error("Failed to fetch movie details");
   }
-  return (await response.json()) as MovieDetail;
+  const movie = (await response.json()) as MovieDetail;
+
+  let imdbRating: string | null = null;
+  const omdbKey = getOmdbApiKey();
+  if (movie.imdb_id && omdbKey) {
+    try {
+      const omdbUrl = new URL("https://www.omdbapi.com/");
+      omdbUrl.searchParams.set("i", movie.imdb_id);
+      omdbUrl.searchParams.set("apikey", omdbKey);
+      const omdbResponse = await fetch(omdbUrl.toString());
+      if (omdbResponse.ok) {
+        const omdbData = (await omdbResponse.json()) as { imdbRating?: string };
+        imdbRating = omdbData.imdbRating ?? null;
+      }
+    } catch {
+      imdbRating = null;
+    }
+  }
+
+  return { ...movie, imdb_rating: imdbRating } as MovieDetail;
 };
 
 export const fetchRecommendations = async (movieId: string) => {

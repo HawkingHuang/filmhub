@@ -6,6 +6,7 @@ import { fetchMovieDetail, fetchRecommendations, fetchCredits, fetchVideos } fro
 import { formatRuntime } from "../../utils/commonUtils";
 import type { MovieRecommendation } from "../../types/movieTypes";
 import styles from "./Movie.module.scss";
+import starIcon from "../../assets/images/star.svg";
 
 function Movie() {
   const { id } = useParams();
@@ -97,6 +98,7 @@ function Movie() {
                   </span>
                 ))}
               </div>
+              <p className={styles.overview}>{data.overview || "No overview available."}</p>
             </div>
             <div className={styles.meta}>
               <div className={styles.metaItem}>
@@ -111,10 +113,15 @@ function Movie() {
                 <span className={styles.metaLabel}>Director</span>
                 <span className={styles.metaValue}>{directorName}</span>
               </div>
+              <div className={styles.metaItem}>
+                <span className={styles.metaLabel}>IMDB Rating</span>
+                <span className={styles.metaValue}>
+                  <img src={starIcon} alt="" />
+                  {data.imdb_rating}
+                </span>
+              </div>
             </div>
           </div>
-
-          <p className={styles.overview}>{data.overview || "No overview available."}</p>
 
           <div className={styles.castList}>
             {castMembers.map((member) => {

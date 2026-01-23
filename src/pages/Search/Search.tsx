@@ -3,10 +3,11 @@ import { Link, useSearchParams } from "react-router-dom";
 import ResponsivePagination from "react-responsive-pagination";
 import "react-responsive-pagination/themes/minimal.css";
 import { useQuery } from "@tanstack/react-query";
-import { BACKDROP_BASE_URL } from "../../lib/api";
+import { BACKDROP_BASE_URL, POSTER_BASE_URL, PROFILE_BASE_URL } from "../../lib/api";
 import { fetchSearchMulti } from "../../utils/apiUtils";
 import type { SearchMultiResult } from "../../types/searchTypes";
 import styles from "./Search.module.scss";
+import imageFallbackPortrait from "../../assets/images/image_fallback_portrait.png";
 
 function Search() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -47,8 +48,16 @@ function Search() {
           <div className={styles.resultsGrid}>
             {visibleResults.map((item) => {
               const titleText = item.title ?? item.name ?? "Untitled";
-              const imagePath = item.backdrop_path ?? item.poster_path ?? item.profile_path;
-              const imageUrl = imagePath ? `${BACKDROP_BASE_URL}${imagePath}` : undefined;
+              let imageUrl: string | undefined;
+              if (item.media_type === "person" && item.profile_path) {
+                imageUrl = `${PROFILE_BASE_URL}${item.profile_path}`;
+              } else if (item.poster_path) {
+                imageUrl = `${POSTER_BASE_URL}${item.poster_path}`;
+              } else if (item.backdrop_path) {
+                imageUrl = `${BACKDROP_BASE_URL}${item.backdrop_path}`;
+              } else {
+                imageUrl = imageFallbackPortrait;
+              }
               const linkTo = item.media_type === "person" ? `/actors/${item.id}` : `/movies/${item.id}`;
 
               return (
