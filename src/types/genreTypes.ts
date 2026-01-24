@@ -8,10 +8,22 @@ export type TmdbMovie = {
 
 export type TmdbResponse = {
   results: TmdbMovie[];
+  page?: number;
+  total_pages?: number;
+  total_results?: number;
 };
 
 export type GenreRowProps = {
   title: string;
   endpoint: string;
   withGenres?: number;
+};
+
+export type MovieGenre = {
+  id: number;
+  name: string;
+};
+
+export type MovieGenresResponse = {
+  genres: MovieGenre[];
 };

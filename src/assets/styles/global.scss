@@ -31,3 +31,18 @@ h5,
 h6 {
   margin: 0;
 }
+
+.pagination {
+  --pagination-color: var(--color-black);
+  --pagination-bg: rgba(0, 0, 0, 0.08);
+  --pagination-hover-bg: rgba(0, 0, 0, 0.18);
+  --pagination-hover-color: var(--color-black);
+  --pagination-active-bg: rgba(0, 0, 0, 0.2);
+  --pagination-active-color: var(--color-black);
+  --pagination-disabled-color: rgba(0, 0, 0, 0.35);
+  --pagination-border-radius: 999px;
+  --pagination-padding-y: 6px;
+  --pagination-padding-x: 12px;
+  --pagination-font-weight: 600;
+  --pagination-item-margin-x: 4px;
+}

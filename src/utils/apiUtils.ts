@@ -3,6 +3,7 @@ import type { TmdbResponse } from "../types/genreTypes";
 import type { MovieDetail, MovieRecommendation, CreditsResponse, VideosResponse } from "../types/movieTypes";
 import type { ActorDetail, ActorCreditsResponse } from "../types/actorTypes";
 import type { SearchMultiResponse } from "../types/searchTypes";
+import type { MovieGenresResponse } from "../types/genreTypes";
 
 const REQUIRED_PARAMS: Record<string, string> = {
   sort_by: "popularity.desc",
@@ -164,4 +165,12 @@ export const fetchSearchMulti = async (query: string, page = 1) => {
     throw new Error("Failed to fetch search results");
   }
   return (await response.json()) as SearchMultiResponse;
+};
+
+export const fetchMovieGenres = async () => {
+  const response = await fetch(buildUrl("/genre/movie/list"));
+  if (!response.ok) {
+    throw new Error("Failed to fetch genres");
+  }
+  return (await response.json()) as MovieGenresResponse;
 };

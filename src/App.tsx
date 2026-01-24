@@ -6,6 +6,7 @@ import Signup from "./pages/Signup/Signup";
 import Movie from "./pages/Movie/Movie";
 import Actor from "./pages/Actor/Actor";
 import User from "./pages/User/User";
+import Genre from "./pages/Genre/Genre";
 import AppLayout from "./ui/AppLayout";
 
 const router = createBrowserRouter([
@@ -19,6 +20,10 @@ const router = createBrowserRouter([
       {
         path: "/search",
         element: <Search />,
+      },
+      {
+        path: "/genres/:id",
+        element: <Genre />,
       },
       {
         path: "/login",
