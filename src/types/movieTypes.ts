@@ -18,6 +18,21 @@ export type FavoritePayload = {
   backdrop_path: string | null;
 };
 
+export type FavoriteRow = {
+  movie_id: number;
+  title: string;
+  poster_path: string | null;
+  backdrop_path: string | null;
+  created_at: string;
+};
+
+export type RecentMovie = {
+  movie_id: number;
+  title: string;
+  poster_path: string | null;
+  backdrop_path: string | null;
+};
+
 export type MovieRecommendation = {
   id: number;
   title: string;

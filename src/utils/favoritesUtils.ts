@@ -1,6 +1,6 @@
 import supabase from "../services/supabase";
 import type { PostgrestError } from "@supabase/supabase-js";
-import type { FavoritePayload } from "../types/movieTypes";
+import type { FavoritePayload, FavoriteRow } from "../types/movieTypes";
 
 const getUserId = async () => {
   const { data, error } = await supabase.auth.getSession();
@@ -51,4 +51,18 @@ export const checkIsFavorited = async (movieId: number) => {
   }
 
   return Boolean(data);
+};
+
+export const fetchFavorites = async (userId: string) => {
+  const { data, error } = await supabase
+    .from("favorites")
+    .select("movie_id,title,poster_path,backdrop_path,created_at")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    throw error as PostgrestError;
+  }
+
+  return (data ?? []) as FavoriteRow[];
 };

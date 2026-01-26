@@ -4,6 +4,7 @@ import * as Toast from "@radix-ui/react-toast";
 import Background from "../components/Background/Background";
 import Header from "../components/Header/Header";
 import type { ToastPayload } from "../types/toastTypes";
+import ScrollToTop from "./ScrollToTop";
 
 function AppLayout() {
   const location = useLocation();
@@ -30,6 +31,7 @@ function AppLayout() {
       <div style={{ position: "relative", zIndex: 2 }}>
         {location.pathname !== "/login" && location.pathname !== "/signup" && <Header />}
         <Outlet />
+        <ScrollToTop />
       </div>
       {toastContent && (
         <Toast.Root className="toastRoot" open={toastOpen} onOpenChange={setToastOpen}>

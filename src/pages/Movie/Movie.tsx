@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -118,6 +118,29 @@ function Movie() {
   const trailerUrl = useMemo(() => {
     return trailer ? `https://www.youtube.com/embed/${trailer.key}` : null;
   }, [trailer]);
+
+  useEffect(() => {
+    if (!data || !movieId) return;
+
+    const payload = {
+      movie_id: movieId,
+      title: data.title,
+      poster_path: data.poster_path ?? null,
+      backdrop_path: data.backdrop_path ?? null,
+    };
+
+    try {
+      const key = "recently_viewed";
+      const raw = localStorage.getItem(key);
+      const parsed = raw ? JSON.parse(raw) : [];
+      const list = Array.isArray(parsed) ? parsed : [];
+      const filtered = list.filter((item: { movie_id?: number }) => item?.movie_id !== movieId);
+      const updated = [payload, ...filtered].slice(0, 8);
+      localStorage.setItem(key, JSON.stringify(updated));
+    } catch {
+      // ignore storage errors
+    }
+  }, [data, movieId]);
 
   if (isLoading) {
     return (
