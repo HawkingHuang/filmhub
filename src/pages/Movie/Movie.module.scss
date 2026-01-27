@@ -54,6 +54,15 @@
       height: 60px;
       box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
       transition: background 300ms ease-in-out;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+
+      svg {
+        width: 20px;
+        height: 20px;
+      }
 
       &:hover {
         background: #fcc419;

@@ -5,7 +5,7 @@ import { POSTER_BASE_URL, PROFILE_BASE_URL } from "../../lib/api";
 import { fetchActorCredits, fetchActorDetail } from "../../utils/apiUtils";
 import type { ActorCredit } from "../../types/actorTypes";
 import styles from "./Actor.module.scss";
-import { CrossCircledIcon, MagnifyingGlassIcon } from "@radix-ui/react-icons";
+import { CrossCircledIcon, MagnifyingGlassIcon, OpenInNewWindowIcon } from "@radix-ui/react-icons";
 import { Select } from "@radix-ui/themes";
 import * as Dialog from "@radix-ui/react-dialog";
 import FullPageSpinner from "../../components/FullPageSpinner/FullPageSpinner";
@@ -100,7 +100,10 @@ function Actor() {
                   {actor.biography || "No biography available."}
                   {actor.biography ? (
                     <Dialog.Trigger asChild>
-                      <button className={styles.readMore}>Read more</button>
+                      <button className={styles.readMore}>
+                        <OpenInNewWindowIcon />
+                        More
+                      </button>
                     </Dialog.Trigger>
                   ) : null}
                 </p>

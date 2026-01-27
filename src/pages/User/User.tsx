@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Tabs } from "@radix-ui/themes";
 import { useQuery } from "@tanstack/react-query";
 import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import ResponsivePagination from "react-responsive-pagination";
 import { POSTER_BASE_URL } from "../../lib/api";
 import type { RootState } from "../../store";
@@ -31,7 +31,10 @@ const getRecentFromStorage = (): RecentMovie[] => {
 function User() {
   const user = useSelector((state: RootState) => state.auth.user);
   const userId = user?.id ?? null;
-  const [tab, setTab] = useState("favorites");
+  const location = useLocation();
+  const locationTab = (location.state as { tab?: string } | null)?.tab;
+  const initialTab = locationTab === "recent" ? "recent" : "favorites";
+  const [tab, setTab] = useState(initialTab);
   const [page, setPage] = useState(1);
 
   const { data, isLoading, isError } = useQuery({

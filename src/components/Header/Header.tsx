@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { EnterIcon, PersonIcon, CaretDownIcon } from "@radix-ui/react-icons";
+import { EnterIcon, PersonIcon, CaretDownIcon, HeartFilledIcon, EyeOpenIcon, ExitIcon } from "@radix-ui/react-icons";
 import * as Toast from "@radix-ui/react-toast";
 import { NavigationMenu } from "radix-ui";
 import { useSelector } from "react-redux";
@@ -52,11 +52,19 @@ function Header() {
                 </NavigationMenu.Trigger>
                 <NavigationMenu.Content className={styles.userMenuContent}>
                   <NavigationMenu.Link asChild>
-                    <Link className={styles.userMenuLink} to="/user">
+                    <Link className={styles.userMenuLink} to="/user" state={{ tab: "favorites" }}>
+                      <HeartFilledIcon />
                       Favorites
                     </Link>
                   </NavigationMenu.Link>
+                  <NavigationMenu.Link asChild>
+                    <Link className={styles.userMenuLink} to="/user" state={{ tab: "recent" }}>
+                      <EyeOpenIcon />
+                      Recently Viewed
+                    </Link>
+                  </NavigationMenu.Link>
                   <button className={styles.userMenuButton} type="button" onClick={handleLogout}>
+                    <ExitIcon />
                     Log Out
                   </button>
                 </NavigationMenu.Content>

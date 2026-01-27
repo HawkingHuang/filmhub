@@ -11,6 +11,7 @@ import type { MovieRecommendation } from "../../types/movieTypes";
 import type { RootState } from "../../store";
 import type { ToastPayload } from "../../types/toastTypes";
 import styles from "./Movie.module.scss";
+import { HeartIcon, Cross1Icon } from "@radix-ui/react-icons";
 import starIcon from "../../assets/images/star.svg";
 import FullPageSpinner from "../../components/FullPageSpinner/FullPageSpinner";
 
@@ -165,13 +166,25 @@ function Movie() {
             type="button"
             disabled={!isAuthenticated || toggleFavoriteMutation.isPending}
             onClick={() => {
-              if (!isAuthenticated || toggleFavoriteMutation.isPending) {
-                return;
-              }
+              if (!isAuthenticated || toggleFavoriteMutation.isPending) return;
               toggleFavoriteMutation.mutate();
             }}
           >
-            {!isAuthenticated ? "Login to Favorite" : toggleFavoriteMutation.isPending ? "Saving..." : isFavorited ? "Remove from Favorites" : "Add to Favorites"}
+            {!isAuthenticated ? (
+              "Login to Favorite"
+            ) : toggleFavoriteMutation.isPending ? (
+              "Saving..."
+            ) : isFavorited ? (
+              <>
+                <Cross1Icon />
+                <span>Remove from Favorites</span>
+              </>
+            ) : (
+              <>
+                <HeartIcon />
+                <span>Add to Favorites</span>
+              </>
+            )}
           </button>
         </div>
         <div className={styles.info}>

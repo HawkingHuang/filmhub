@@ -73,7 +73,7 @@
           color: var(--color-black);
           background: rgba(255, 255, 255, 0.6);
           border-radius: 10px;
-          padding: 12px 84px 4px 16px;
+          padding: 12px 80px 4px 16px;
           position: relative;
           margin: 0;
           display: -webkit-box;
@@ -94,6 +94,9 @@
             padding: 6px 8px;
             border-radius: 10px;
             z-index: 2;
+            display: flex;
+            align-items: center;
+            gap: 4px;
           }
         }
       }
