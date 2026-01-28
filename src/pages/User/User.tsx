@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { HeartFilledIcon, EyeOpenIcon } from "@radix-ui/react-icons";
 import { Tabs } from "@radix-ui/themes";
 import { useQuery } from "@tanstack/react-query";
 import { useSelector } from "react-redux";
@@ -31,14 +32,29 @@ function User() {
 
   const favorites = useMemo(() => data ?? [], [data]);
   const totalPages = Math.ceil(favorites.length / PAGE_SIZE);
-
   const pageSafe = totalPages > 0 ? Math.min(page, totalPages) : 1;
   const pagedFavorites = useMemo(() => {
     const start = (pageSafe - 1) * PAGE_SIZE;
     return favorites.slice(start, start + PAGE_SIZE);
   }, [favorites, pageSafe]);
 
-  const recentMovies = useMemo(() => readRecentViewFromLocalStorage(), [tab]);
+  const recentMovies = useMemo(() => {
+    if (tab !== "recent") return [];
+    readRecentViewFromLocalStorage();
+  }, [tab]);
+
+  useEffect(() => {
+    if (locationTab === "recent") {
+      queueMicrotask(() => {
+        setTab("recent");
+      });
+    } else if (locationTab === "favorites") {
+      queueMicrotask(() => {
+        setTab("favorites");
+        setPage(1);
+      });
+    }
+  }, [locationTab]);
 
   if (isLoading) {
     return <FullPageSpinner />;
@@ -50,9 +66,11 @@ function User() {
         <Tabs.Root value={tab} onValueChange={setTab} defaultValue="favorites">
           <Tabs.List className={styles.tabsList}>
             <Tabs.Trigger className={styles.tabTrigger} value="favorites">
+              <HeartFilledIcon />
               Favorites
             </Tabs.Trigger>
             <Tabs.Trigger className={styles.tabTrigger} value="recent">
+              <EyeOpenIcon />
               Recently Viewed
             </Tabs.Trigger>
           </Tabs.List>

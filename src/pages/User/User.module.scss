@@ -30,6 +30,18 @@
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
   }
 
+  :global(.rt-BaseTabListTriggerInner) {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 6px;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
   :global(.rt-BaseTabListTrigger:where([data-state="active"], [data-active])::before) {
     content: none;
     display: none;
