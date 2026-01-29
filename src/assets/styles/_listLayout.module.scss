@@ -1,3 +1,5 @@
+@use "./mixins" as *;
+
 .state {
   padding: 16px;
   border-radius: 10px;
@@ -49,10 +51,7 @@
       font-size: 16px;
       font-weight: 600;
       padding: 0 0 4px 4px;
-      max-width: 100%;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      @include text-ellipsis;
     }
   }
 }
