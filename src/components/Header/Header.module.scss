@@ -1,3 +1,5 @@
+@use "../../assets/styles/mixins" as *;
+
 :global(.container) {
   .header {
     display: flex;
@@ -130,6 +132,75 @@
     .userMenuButton:hover {
       color: var(--color-white);
       background: var(--color-black);
+    }
+
+    @include respond-md {
+      gap: 12px;
+
+      .form {
+        .input {
+          width: 70%;
+        }
+      }
+    }
+
+    @include respond-sm {
+      justify-content: space-between;
+      flex-wrap: wrap;
+      height: auto;
+      gap: 10px;
+
+      .title {
+        width: 50%;
+        box-sizing: border-box;
+        padding: 8px 0;
+
+        .logo {
+          width: 50%;
+        }
+      }
+
+      .form {
+        order: 3;
+        flex: 1 1 100%;
+        height: auto;
+
+        .input {
+          width: 100%;
+        }
+      }
+
+      .login,
+      .userMenuRoot {
+        order: 2;
+      }
+    }
+
+    @include respond-xs {
+      justify-content: space-between;
+      flex-wrap: wrap;
+      height: auto;
+      gap: 8px;
+
+      .title {
+        width: 50%;
+        box-sizing: border-box;
+        padding: 8px 0;
+
+        .logo {
+          width: 75%;
+        }
+      }
+
+      .form {
+        order: 3;
+        flex: 1 1 100%;
+        height: auto;
+
+        .input {
+          width: 100%;
+        }
+      }
     }
   }
 }

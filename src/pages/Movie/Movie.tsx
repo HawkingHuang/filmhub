@@ -217,7 +217,7 @@ function Movie() {
             {castMembers.map((member) => {
               const profileUrl = member.profile_path ? `${PROFILE_BASE_URL}${member.profile_path}` : null;
               return (
-                <Link key={member.id} to={`/actors/${member.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+                <Link className={styles.castLink} key={member.id} to={`/actors/${member.id}`}>
                   <div className={styles.castItem}>
                     {profileUrl ? <img className={styles.castImage} src={profileUrl} alt={member.name} /> : <div className={styles.castImageFallback} />}
                     <div className={styles.castName}>{member.name}</div>

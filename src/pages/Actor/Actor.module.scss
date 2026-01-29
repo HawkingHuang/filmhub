@@ -1,3 +1,5 @@
+@use "../../assets/styles/mixins" as *;
+
 .state {
   padding: 48px 0;
   font-size: 18px;
@@ -133,6 +135,52 @@
       }
     }
   }
+
+  @include respond-sm {
+    grid-template-columns: 1fr;
+    gap: 20px;
+
+    padding: 10px 0 32px;
+
+    .profileWrap {
+      .profileImage {
+        max-width: 160px;
+      }
+    }
+
+    .bioSection {
+      .bioInfoRow {
+        grid-template-columns: 1fr;
+        gap: 16px;
+
+        .biographyWrap,
+        .infoCard {
+          grid-column: 1 / -1;
+        }
+      }
+    }
+  }
+
+  @include respond-xs {
+    grid-template-columns: 1fr;
+    gap: 16px;
+
+    .bioSection {
+      .actorName {
+        font-size: 26px;
+      }
+
+      .bioInfoRow {
+        grid-template-columns: 1fr;
+        gap: 12px;
+
+        .biographyWrap,
+        .infoCard {
+          grid-column: 1 / -1;
+        }
+      }
+    }
+  }
 }
 
 .creditsSection {
@@ -230,7 +278,26 @@
     padding: 0 0 4px 4px;
   }
 
+  @include respond-sm {
+    .creditsHeader {
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+  }
+
   @import "../../assets/styles/listLayout.module";
+
+  @include respond-xl {
+    padding-bottom: 72px;
+  }
+
+  @include respond-sm {
+    padding-bottom: 48px;
+  }
+
+  @include respond-xs {
+    padding-bottom: 48px;
+  }
 }
 
 /* dialog styles */
@@ -285,34 +352,6 @@
     font-size: 16px;
     line-height: 1.6;
     color: var(--color-black);
-  }
-}
-
-@media (max-width: 1100px) {
-  .topSection {
-    grid-template-columns: 220px 1fr;
-
-    .infoCard {
-      grid-column: 1 / -1;
-    }
-  }
-
-  .creditsSection {
-    .resultsGrid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-}
-
-@media (max-width: 700px) {
-  .topSection {
-    grid-template-columns: 1fr;
-  }
-
-  .creditsSection {
-    .resultsGrid {
-      grid-template-columns: 1fr;
-    }
   }
 }
 

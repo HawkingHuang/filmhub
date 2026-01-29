@@ -89,15 +89,14 @@
   .info {
     display: flex;
     flex-direction: column;
-    gap: 16px;
 
     .infoHeader {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      grid-template-rows: repeat(3, 1fr);
+      grid-template-rows: auto auto 1fr;
       column-gap: 24px;
       row-gap: 12px;
-      height: 300px;
+      min-height: 300px;
 
       .titleBlock {
         display: contents;
@@ -106,7 +105,7 @@
       .title {
         grid-column: 1 / 4;
         grid-row: 1;
-        font-size: 36px;
+        font-size: 30px;
         font-weight: 700;
         color: var(--color-black);
       }
@@ -132,6 +131,10 @@
       .overview {
         grid-column: 1 / 4;
         grid-row: 3;
+        display: -webkit-box;
+        -webkit-line-clamp: 6;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
       }
 
       .meta {
@@ -173,11 +176,11 @@
 
     .overview {
       font-size: 18px;
-      line-height: 1.6;
+      line-height: 1.7;
       color: var(--color-black);
       background: rgba(255, 255, 255, 0.6);
       border-radius: 10px;
-      padding: 12px 16px;
+      padding: 12px 16px 4px 12px;
       margin: 0;
       box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
     }
@@ -188,50 +191,173 @@
       flex-wrap: wrap;
       margin-top: 16px;
 
-      .castItem {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 6px;
-        width: 125px;
-        box-shadow: 0 2px 30px rgba(0, 0, 0, 0.2);
-        border-radius: 10px;
-        transition: box-shadow 300ms ease-in-out;
-
-        &:hover {
-          box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        .castImage,
-        .castImageFallback {
+      .castLink {
+        text-decoration: none;
+        color: inherit;
+        width: 11.5%;
+        .castItem {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 6px;
           width: 100%;
-          aspect-ratio: 2 / 3;
-          border-radius: 10px 10px 0 0;
+          box-shadow: 0 2px 30px rgba(0, 0, 0, 0.2);
+          border-radius: 10px;
+          transition: box-shadow 300ms ease-in-out;
+
+          &:hover {
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+          }
+
+          .castImage,
+          .castImageFallback {
+            width: 100%;
+            aspect-ratio: 2 / 3;
+            border-radius: 10px 10px 0 0;
+          }
+
+          .castImage {
+            object-fit: cover;
+          }
+
+          .castImageFallback {
+            background: rgba(0, 0, 0, 0.08);
+          }
+
+          .castName {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-black);
+            text-align: center;
+            @include text-ellipsis(90%);
+          }
+
+          .castCharacter {
+            font-size: 13px;
+            color: rgba(0, 0, 0, 0.6);
+            text-align: center;
+            margin-bottom: 2px;
+            @include text-ellipsis(90%);
+          }
+        }
+      }
+    }
+  }
+
+  @include respond-lg {
+    grid-template-columns: 1fr;
+    gap: 24px;
+
+    .info {
+      .infoHeader {
+        .title {
+          grid-column: 1 / -1;
+        }
+        .meta {
+          grid-row: 2 / 4;
+          gap: 10px;
+        }
+      }
+    }
+  }
+
+  @include respond-md {
+    grid-template-columns: 1fr;
+    gap: 24px;
+
+    .info {
+      .castList {
+        gap: 24px;
+
+        .castLink {
+          width: 22%;
+        }
+      }
+    }
+  }
+
+  @include respond-sm {
+    grid-template-columns: 1fr;
+    gap: 20px;
+
+    .posterWrap {
+      .poster {
+        max-width: 200px;
+      }
+      .addButton {
+        max-width: 60%;
+        height: 54px;
+        font-size: 16px;
+      }
+    }
+
+    .info {
+      .infoHeader {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+        height: auto;
+
+        .title,
+        .genres,
+        .overview,
+        .meta {
+          grid-column: 1 / -1;
+          grid-row: auto;
         }
 
-        .castImage {
-          object-fit: cover;
+        .title {
+          font-size: 28px;
         }
 
-        .castImageFallback {
-          background: rgba(0, 0, 0, 0.08);
+        .meta {
+          min-width: 0;
+        }
+      }
+
+      .castList {
+        gap: 24px;
+
+        .castLink {
+          width: 47%;
+        }
+      }
+    }
+  }
+
+  @include respond-xs {
+    grid-template-columns: 1fr;
+    gap: 16px;
+
+    .posterWrap {
+      .addButton {
+        max-width: 75%;
+        height: 52px;
+        font-size: 15px;
+      }
+    }
+
+    .info {
+      .infoHeader {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+        height: auto;
+
+        .title,
+        .genres,
+        .overview,
+        .meta {
+          grid-column: 1 / -1;
+          grid-row: auto;
         }
 
-        .castName {
-          font-size: 14px;
-          font-weight: 600;
-          color: var(--color-black);
-          text-align: center;
-          @include text-ellipsis(90%);
+        .meta {
+          min-width: 0;
+          padding: 10px 12px;
         }
+      }
 
-        .castCharacter {
-          font-size: 13px;
-          color: rgba(0, 0, 0, 0.6);
-          text-align: center;
-          margin-bottom: 2px;
-          @include text-ellipsis(90%);
-        }
+      .castList {
+        gap: 10px;
       }
     }
   }
@@ -317,29 +443,16 @@
   }
 
   @import "../../assets/styles/listLayout.module";
-}
 
-@media (max-width: 1100px) {
-  .topBlock {
-    grid-template-columns: 1fr;
+  @include respond-xl {
+    padding-bottom: 72px;
   }
 
-  .infoHeader {
-    flex-direction: column;
-    align-items: flex-start;
+  @include respond-sm {
+    padding-bottom: 48px;
   }
 
-  .middleBlock {
-    grid-template-columns: 1fr;
-  }
-
-  .recommendations .resultsGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 700px) {
-  .recommendations .resultsGrid {
-    grid-template-columns: 1fr;
+  @include respond-xs {
+    padding-bottom: 48px;
   }
 }
