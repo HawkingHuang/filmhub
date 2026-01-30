@@ -7,12 +7,21 @@
   color: rgba(0, 0, 0, 0.6);
   background: rgba(255, 255, 255, 0.6);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+
+  @include respond-sm {
+    padding: 12px;
+    font-size: 15px;
+  }
+
+  @include respond-xs {
+    padding: 12px;
+    font-size: 14px;
+  }
 }
 
 .resultsGrid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
+  @include responsive-grid();
 }
 
 .cardLink {
@@ -52,6 +61,18 @@
       font-weight: 600;
       padding: 0 0 4px 4px;
       @include text-ellipsis;
+
+      @include respond-xl {
+        font-size: 17px;
+      }
+
+      @include respond-sm {
+        font-size: 14px;
+      }
+
+      @include respond-xs {
+        font-size: 14px;
+      }
     }
   }
 }

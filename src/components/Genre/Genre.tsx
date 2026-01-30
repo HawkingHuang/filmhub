@@ -109,6 +109,13 @@ function GenreRow({ title, endpoint, withGenres }: GenreRowProps) {
             slidesPerView={4}
             slidesPerGroup={4}
             spaceBetween={16}
+            breakpoints={{
+              0: { slidesPerView: 2, slidesPerGroup: 2 },
+              481: { slidesPerView: 2, slidesPerGroup: 2 },
+              641: { slidesPerView: 3, slidesPerGroup: 3 },
+              1025: { slidesPerView: 4, slidesPerGroup: 4 },
+              1360: { slidesPerView: 4, slidesPerGroup: 4 },
+            }}
             onBeforeInit={(swiper) => {
               // Attach navigation elements before Swiper initializes
               const nav = swiper.params.navigation as NavigationOptions;

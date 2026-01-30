@@ -1,3 +1,5 @@
+@use "../../assets/styles/mixins" as *;
+
 .genre {
   display: flex;
   flex-direction: column;
@@ -93,6 +95,113 @@
         .cardTitle {
           font-size: 18px;
           font-weight: 600;
+        }
+      }
+    }
+  }
+
+  @include respond-xl {
+    padding: 32px 0 72px;
+    gap: 36px;
+
+    .row {
+      gap: 18px;
+
+      .rowHeader {
+        .title {
+          font-size: 26px;
+        }
+      }
+    }
+  }
+
+  @include respond-md {
+    gap: 24px;
+
+    .row {
+      .rowHeader {
+        .title {
+          font-size: 22px;
+        }
+
+        .nav {
+          .navButton {
+            width: 30px;
+            height: 30px;
+          }
+        }
+      }
+
+      .cardLink {
+        .card {
+          .cardTitle {
+            font-size: 16px;
+          }
+        }
+      }
+    }
+  }
+
+  @include respond-sm {
+    padding: 16px 0 48px;
+    gap: 20px;
+
+    .row {
+      gap: 10px;
+
+      .rowHeader {
+        flex-wrap: wrap;
+        gap: 12px;
+
+        .title {
+          font-size: 20px;
+        }
+
+        .nav {
+          .navButton {
+            width: 28px;
+            height: 28px;
+          }
+        }
+      }
+
+      .cardLink {
+        .card {
+          .cardTitle {
+            font-size: 15px;
+          }
+        }
+      }
+    }
+  }
+
+  @include respond-xs {
+    padding: 16px 0 48px;
+
+    .row {
+      gap: 10px;
+
+      .rowHeader {
+        flex-wrap: wrap;
+        gap: 10px;
+
+        .title {
+          font-size: 18px;
+        }
+
+        .nav {
+          .navButton {
+            width: 26px;
+            height: 26px;
+          }
+        }
+      }
+
+      .cardLink {
+        .card {
+          .cardTitle {
+            font-size: 14px;
+          }
         }
       }
     }

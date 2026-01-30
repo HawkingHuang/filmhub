@@ -1,3 +1,60 @@
+@use "./variables" as *;
+
+@mixin respond-xs {
+  @media (max-width: $bp-xs) {
+    @content;
+  }
+}
+
+@mixin respond-sm {
+  @media (max-width: $bp-sm) {
+    @content;
+  }
+}
+
+@mixin respond-md {
+  @media (max-width: $bp-md) {
+    @content;
+  }
+}
+
+@mixin respond-lg {
+  @media (max-width: $bp-lg) {
+    @content;
+  }
+}
+
+@mixin respond-xl {
+  @media (max-width: $bp-xl) {
+    @content;
+  }
+}
+
+@mixin responsive-grid($xl-cols: 4, $lg-cols: 4, $md-cols: 2, $sm-cols: 2, $xs-cols: 2, $gap-xl: 20px, $gap-lg: 16px, $gap-md: 14px, $gap-sm: 12px, $gap-xs: 10px) {
+  grid-template-columns: repeat($lg-cols, minmax(0, 1fr));
+  gap: $gap-lg;
+
+  @include respond-xl {
+    grid-template-columns: repeat($xl-cols, minmax(0, 1fr));
+    gap: $gap-xl;
+  }
+
+  @include respond-md {
+    grid-template-columns: repeat($md-cols, minmax(0, 1fr));
+    gap: $gap-md;
+  }
+
+  @include respond-sm {
+    grid-template-columns: repeat($sm-cols, minmax(0, 1fr));
+    gap: $gap-sm;
+  }
+
+  @include respond-xs {
+    grid-template-columns: repeat($xs-cols, minmax(0, 1fr));
+    gap: $gap-xs;
+  }
+}
+
 @mixin text-ellipsis($width: 100%) {
   max-width: $width;
   white-space: nowrap;
