@@ -11,9 +11,11 @@ import type { RecentMovie, MovieRecommendation } from "../../types/movieTypes";
 import type { RootState } from "../../store";
 import type { ToastPayload } from "../../types/toastTypes";
 import styles from "./Movie.module.scss";
-import { HeartIcon, Cross1Icon } from "@radix-ui/react-icons";
+import { HeartIcon, Cross1Icon, CrossCircledIcon, OpenInNewWindowIcon } from "@radix-ui/react-icons";
 import starIcon from "../../assets/images/star.svg";
 import FullPageSpinner from "../../components/FullPageSpinner/FullPageSpinner";
+import * as Dialog from "@radix-ui/react-dialog";
+import { useIsClamped } from "../../hooks/useIsClamped";
 
 function Movie() {
   const { id } = useParams();
@@ -21,6 +23,7 @@ function Movie() {
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
   const [toastOpen, setToastOpen] = useState(false);
   const [toastContent, setToastContent] = useState<ToastPayload | null>(null);
+  const [isOverviewOpen, setIsOverviewOpen] = useState(false);
   const movieId = useMemo(() => {
     const parsed = Number(id);
     return Number.isFinite(parsed) ? parsed : null;
@@ -31,6 +34,7 @@ function Movie() {
     queryFn: () => fetchMovieDetail(id ?? ""),
     enabled: Boolean(id),
   });
+  const { ref: overviewRef, isClamped } = useIsClamped(data?.overview ?? "");
   const { data: creditsData } = useQuery({
     queryKey: ["movie", id, "credits"],
     queryFn: () => fetchCredits(id ?? ""),
@@ -183,12 +187,38 @@ function Movie() {
               <h1 className={styles.title}>{data.title}</h1>
               <div className={styles.genres}>
                 {data.genres?.map((genre) => (
-                  <span key={genre.id} className={styles.genreTag}>
+                  <Link key={genre.id} className={styles.genreTag} to={`/genres/${genre.id}`}>
                     {genre.name}
-                  </span>
+                  </Link>
                 ))}
               </div>
-              <p className={styles.overview}>{data.overview || "No overview available."}</p>
+              <Dialog.Root open={isOverviewOpen} onOpenChange={setIsOverviewOpen}>
+                <p className={styles.overview} ref={overviewRef}>
+                  {data.overview || "No overview available."}
+                  {data.overview && isClamped ? (
+                    <Dialog.Trigger asChild>
+                      <button className={styles.readMore}>
+                        <OpenInNewWindowIcon />
+                        More
+                      </button>
+                    </Dialog.Trigger>
+                  ) : null}
+                </p>
+                <Dialog.Portal>
+                  <Dialog.Overlay className={styles.dialogOverlay} />
+                  <Dialog.Content className={styles.dialogContent} aria-label={`${data.title} overview`}>
+                    <div className={styles.dialogHeader}>
+                      <Dialog.Title>{data.title} — Overview</Dialog.Title>
+                      <Dialog.Close asChild>
+                        <button className={styles.dialogClose}>
+                          <CrossCircledIcon />
+                        </button>
+                      </Dialog.Close>
+                    </div>
+                    <div className={styles.dialogBody}>{data.overview}</div>
+                  </Dialog.Content>
+                </Dialog.Portal>
+              </Dialog.Root>
             </div>
             <div className={styles.meta}>
               <div className={styles.metaItem}>

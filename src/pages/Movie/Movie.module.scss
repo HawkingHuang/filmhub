@@ -125,6 +125,7 @@
           font-size: 14px;
           font-weight: 600;
           color: var(--color-black);
+          text-decoration: none;
         }
       }
 
@@ -135,6 +136,25 @@
         -webkit-line-clamp: 6;
         -webkit-box-orient: vertical;
         overflow: hidden;
+        position: relative;
+        padding-right: 72px;
+
+        .readMore {
+          position: absolute;
+          bottom: 6px;
+          right: 6px;
+          background: #ffd43b;
+          border: none;
+          color: var(--color-black);
+          font-weight: 600;
+          cursor: pointer;
+          padding: 6px 8px;
+          border-radius: 10px;
+          z-index: 2;
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+        }
       }
 
       .meta {
@@ -312,6 +332,16 @@
         .meta {
           min-width: 0;
         }
+
+        .overview {
+          padding-right: 64px;
+
+          .readMore {
+            bottom: 4px;
+            right: 4px;
+            padding: 5px 7px;
+          }
+        }
       }
 
       .castList {
@@ -354,12 +384,99 @@
           min-width: 0;
           padding: 10px 12px;
         }
+
+        .overview {
+          padding-right: 60px;
+
+          .readMore {
+            bottom: 4px;
+            right: 4px;
+            padding: 5px 7px;
+            font-size: 13px;
+          }
+        }
       }
 
       .castList {
         gap: 10px;
       }
     }
+  }
+}
+
+.dialogOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 60;
+  padding: 24px;
+}
+
+.dialogContent {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(900px, calc(100% - 48px));
+  max-height: 85vh;
+  background: var(--color-white);
+  border-radius: 12px;
+  padding: 20px;
+  overflow: auto;
+  z-index: 61;
+
+  &[data-state="open"] {
+    animation: contentShow 250ms cubic-bezier(0.2, 0, 0, 1);
+  }
+
+  &[data-state="closed"] {
+    animation: contentHide 250ms cubic-bezier(0.2, 0, 0, 1);
+  }
+
+  .dialogHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+
+    .dialogClose {
+      background: transparent;
+      border: none;
+      font-weight: 700;
+      cursor: pointer;
+    }
+  }
+
+  .dialogBody {
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--color-black);
+  }
+}
+
+@keyframes contentShow {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes contentHide {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0);
   }
 }
 

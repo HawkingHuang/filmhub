@@ -9,6 +9,7 @@ import { CrossCircledIcon, MagnifyingGlassIcon, OpenInNewWindowIcon } from "@rad
 import { Select } from "@radix-ui/themes";
 import * as Dialog from "@radix-ui/react-dialog";
 import FullPageSpinner from "../../components/FullPageSpinner/FullPageSpinner";
+import { useIsClamped } from "../../hooks/useIsClamped";
 
 function Actor() {
   const { id } = useParams();
@@ -32,6 +33,7 @@ function Actor() {
   const credits = useMemo(() => creditsData?.cast ?? [], [creditsData]);
   const [creditQuery, setCreditQuery] = useState("");
   const [creditYear, setCreditYear] = useState("all");
+  const { ref: biographyRef, isClamped } = useIsClamped(actor?.biography ?? "");
 
   const creditYears = useMemo(() => {
     const years = new Set<string>();
@@ -96,9 +98,9 @@ function Actor() {
           <Dialog.Root open={isBioOpen} onOpenChange={setIsBioOpen}>
             <div className={styles.bioInfoRow}>
               <div className={styles.biographyWrap}>
-                <p className={styles.biography}>
+                <p className={styles.biography} ref={biographyRef}>
                   {actor.biography || "No biography available."}
-                  {actor.biography ? (
+                  {actor.biography && isClamped ? (
                     <Dialog.Trigger asChild>
                       <button className={styles.readMore}>
                         <OpenInNewWindowIcon />
