@@ -78,16 +78,10 @@
             transform 500ms cubic-bezier(0.22, 0.61, 0.36, 1);
         }
 
-        .posterFallback {
-          width: 100%;
-          aspect-ratio: 16 / 9;
-          border-radius: 8px;
-          background: rgba(255, 255, 255, 0.08);
-        }
-
         .skeleton {
           width: 100%;
           aspect-ratio: 16 / 9;
+          height: auto;
           border-radius: 8px;
           display: block;
         }

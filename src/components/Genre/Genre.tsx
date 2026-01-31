@@ -13,6 +13,7 @@ import type { GenreRowProps } from "../../types/genreTypes";
 import { BACKDROP_BASE_URL } from "../../lib/api";
 import { fetchMovies } from "../../utils/apiUtils";
 import styles from "./Genre.module.scss";
+import imageFallbackLandscape from "../../assets/images/image_fallback_landscape.png";
 
 function GenreRow({ title, endpoint, withGenres }: GenreRowProps) {
   const prevRef = useRef<HTMLButtonElement | null>(null);
@@ -130,36 +131,33 @@ function GenreRow({ title, endpoint, withGenres }: GenreRowProps) {
           >
             {movies.map((movie) => {
               const imagePath = movie.backdrop_path ?? movie.poster_path;
-              const imageUrl = imagePath ? `${BACKDROP_BASE_URL}${imagePath}` : undefined;
+              const imageUrl = imagePath ? `${BACKDROP_BASE_URL}${imagePath}` : imageFallbackLandscape;
               const titleText = movie.title ?? movie.name ?? "Untitled";
               return (
                 <SwiperSlide key={movie.id} className={styles.slide}>
                   <Link to={`/movies/${movie.id}`} className={styles.cardLink}>
                     <div className={styles.card}>
-                      {imageUrl ? (
-                        <>
-                          {!preloaded && <Skeleton className={styles.skeleton} aria-hidden />}
-                          {preloaded && (
-                            <img
-                              className={styles.poster}
-                              src={imageUrl}
-                              alt={titleText}
-                              onLoad={(e) => {
-                                const el = e.currentTarget as HTMLImageElement;
-                                el.style.opacity = "1";
-                                el.style.transform = "translateY(0)";
-                              }}
-                              onError={(e) => {
-                                const el = e.currentTarget as HTMLImageElement;
-                                el.style.opacity = "1";
-                                el.style.transform = "translateY(0)";
-                              }}
-                            />
-                          )}
-                        </>
-                      ) : (
-                        <div className={styles.posterFallback} />
-                      )}
+                      <>
+                        {!preloaded && <Skeleton className={styles.skeleton} aria-hidden />}
+                        {preloaded && (
+                          <img
+                            className={styles.poster}
+                            src={imageUrl}
+                            alt={titleText}
+                            onLoad={(e) => {
+                              const el = e.currentTarget as HTMLImageElement;
+                              el.style.opacity = "1";
+                              el.style.transform = "translateY(0)";
+                            }}
+                            onError={(e) => {
+                              const el = e.currentTarget as HTMLImageElement;
+                              el.style.opacity = "1";
+                              el.style.transform = "translateY(0)";
+                              el.src = imageFallbackLandscape;
+                            }}
+                          />
+                        )}
+                      </>
                       <div className={styles.cardTitle}>{titleText}</div>
                     </div>
                   </Link>
