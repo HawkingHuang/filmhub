@@ -19,9 +19,21 @@
       gap: 16px;
 
       .title {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
         font-size: 24px;
         font-weight: 700;
         color: var(--color-black);
+        text-decoration: none;
+        padding: 6px 8px;
+        border-radius: 10px;
+        background: #ffd43b;
+        cursor: pointer;
+
+        &:hover {
+          background: #fcc419;
+        }
       }
 
       .nav {

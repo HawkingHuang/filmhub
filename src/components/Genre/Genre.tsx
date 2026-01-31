@@ -5,7 +5,7 @@ import { Navigation } from "swiper/modules";
 import type { NavigationOptions } from "swiper/types";
 import "swiper/css";
 import "swiper/css/navigation";
-import { ThickArrowLeftIcon, ThickArrowRightIcon } from "@radix-ui/react-icons";
+import { ThickArrowLeftIcon, ThickArrowRightIcon, OpenInNewWindowIcon } from "@radix-ui/react-icons";
 import { Link } from "react-router-dom";
 import { GENRES } from "../../lib/constants";
 import { Skeleton } from "@radix-ui/themes";
@@ -18,6 +18,8 @@ import imageFallbackLandscape from "../../assets/images/image_fallback_landscape
 function GenreRow({ title, endpoint, withGenres }: GenreRowProps) {
   const prevRef = useRef<HTMLButtonElement | null>(null);
   const nextRef = useRef<HTMLButtonElement | null>(null);
+  const isTrending = title.toLowerCase() === "trending";
+  const rowLink = withGenres ? `/genres/${withGenres}?page=1` : "";
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["tmdb", title, endpoint, withGenres],
@@ -92,7 +94,14 @@ function GenreRow({ title, endpoint, withGenres }: GenreRowProps) {
   return (
     <section className={styles.row}>
       <div className={styles.rowHeader}>
-        <h2 className={styles.title}>{title}</h2>
+        {isTrending ? (
+          <span className={styles.title}>{title}</span>
+        ) : (
+          <Link className={styles.title} to={rowLink}>
+            {title}
+            <OpenInNewWindowIcon />
+          </Link>
+        )}
         <div className={styles.nav}>
           <button className={styles.navButton} ref={prevRef} type="button" aria-label="Previous">
             <ThickArrowLeftIcon aria-hidden />
