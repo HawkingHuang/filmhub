@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import * as Toast from "@radix-ui/react-toast";
-import { POSTER_BASE_URL, PROFILE_BASE_URL } from "../../lib/api";
+import { BACKDROP_BASE_URL, POSTER_BASE_URL, PROFILE_BASE_URL } from "../../lib/api";
 import { addToFavorites, deleteFromFavorites } from "../../utils/favoritesUtils";
 import { formatRuntime, writeInRecentViewToLocalStorage } from "../../utils/commonUtils";
 import type { RecentMovie, MovieRecommendation } from "../../types/movieTypes";
@@ -13,6 +13,7 @@ import styles from "./Movie.module.scss";
 import { HeartIcon, Cross1Icon, CrossCircledIcon, OpenInNewWindowIcon } from "@radix-ui/react-icons";
 import starIcon from "../../assets/images/star.svg";
 import imageFallbackPortrait from "../../assets/images/image_fallback_portrait.png";
+import imageFallbackLandscape from "../../assets/images/image_fallback_landscape.png";
 import FullPageSpinner from "../../components/FullPageSpinner/FullPageSpinner";
 import * as Dialog from "@radix-ui/react-dialog";
 import { useIsClamped } from "../../hooks/useIsClamped";
@@ -32,6 +33,8 @@ function Movie() {
   const [toastOpen, setToastOpen] = useState(false);
   const [toastContent, setToastContent] = useState<ToastPayload | null>(null);
   const [isOverviewOpen, setIsOverviewOpen] = useState(false);
+  const [showLandscapePoster, setShowLandscapePoster] = useState(false);
+  const topBlockRef = useRef<HTMLElement | null>(null);
 
   // Derived identifiers
   const movieId = useMemo(() => {
@@ -52,6 +55,11 @@ function Movie() {
     if (!data?.poster_path) return imageFallbackPortrait;
     return `${POSTER_BASE_URL}${data.poster_path}`;
   }, [data?.poster_path]);
+
+  const posterUrlLandscape = useMemo(() => {
+    if (!data?.backdrop_path) return imageFallbackLandscape;
+    return `${BACKDROP_BASE_URL}${data.backdrop_path}`;
+  }, [data]);
 
   const toggleFavoriteMutation = useMutation({
     mutationFn: async () => {
@@ -120,6 +128,24 @@ function Movie() {
     writeInRecentViewToLocalStorage(payload);
   }, [data, movieId]);
 
+  // Resize observer for landscape poster
+  useEffect(() => {
+    if (isLoading) return;
+    const el = topBlockRef.current;
+    if (!el) return;
+
+    const update = () => {
+      const width = el.getBoundingClientRect().width;
+      setShowLandscapePoster(width < 1360);
+    };
+
+    update();
+    const ro = new ResizeObserver(() => update());
+    ro.observe(el);
+
+    return () => ro.disconnect();
+  }, [isLoading]);
+
   if (isLoading) {
     return <FullPageSpinner />;
   }
@@ -134,16 +160,27 @@ function Movie() {
 
   return (
     <div className="container">
-      <section className={styles.topBlock}>
+      <section className={styles.topBlock} ref={topBlockRef}>
         <div className={styles.posterWrap}>
-          <img
-            className={styles.poster}
-            src={posterUrl}
-            alt={data.title}
-            onError={(e) => {
-              e.currentTarget.src = imageFallbackPortrait;
-            }}
-          />
+          {showLandscapePoster ? (
+            <img
+              className={styles.posterLandscape}
+              src={posterUrlLandscape}
+              alt={`${data.title} backdrop`}
+              onError={(e) => {
+                e.currentTarget.src = imageFallbackLandscape;
+              }}
+            />
+          ) : (
+            <img
+              className={styles.poster}
+              src={posterUrl}
+              alt={data.title}
+              onError={(e) => {
+                e.currentTarget.src = imageFallbackPortrait;
+              }}
+            />
+          )}
           <button
             className={`${styles.addButton} ${isFavorited ? styles.favorited : ""}`}
             type="button"
