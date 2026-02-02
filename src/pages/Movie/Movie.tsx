@@ -1,10 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import * as Toast from "@radix-ui/react-toast";
 import { BACKDROP_BASE_URL, POSTER_BASE_URL, PROFILE_BASE_URL } from "../../lib/api";
-import { addToFavorites, deleteFromFavorites } from "../../utils/favoritesUtils";
 import { formatRuntime, writeInRecentViewToLocalStorage } from "../../utils/commonUtils";
 import type { RecentMovie } from "../../types/movieTypes";
 import type { RootState } from "../../store";
@@ -22,12 +20,12 @@ import { useMovieDetail } from "../../hooks/useMovieDetail";
 import { useRecommendations } from "../../hooks/useRecommendations";
 import { useVideos } from "../../hooks/useVideos";
 import { useCheckIsFavorited } from "../../hooks/useCheckIsFavorited";
+import { useToggleFavorite } from "../../hooks/useToggleFavorite";
 import Recommendations from "../../components/Recommendations/Recommendations";
 
 function Movie() {
   // Routing + auth context
   const { id } = useParams();
-  const queryClient = useQueryClient();
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
 
   // Local UI state
@@ -62,41 +60,11 @@ function Movie() {
     return `${BACKDROP_BASE_URL}${data.backdrop_path}`;
   }, [data]);
 
-  const toggleFavoriteMutation = useMutation({
-    mutationFn: async () => {
-      if (!movieId || !data) {
-        return null;
-      }
-
-      if (isFavorited) {
-        return deleteFromFavorites(movieId);
-      }
-
-      return addToFavorites({
-        movie_id: movieId,
-        title: data.title,
-        poster_path: data.poster_path ?? null,
-        backdrop_path: data.backdrop_path ?? null,
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["favorites", "isFavorited", movieId] });
-      if (isFavorited) {
-        setToastContent({ title: "Successfully Removed", description: data?.title });
-      } else {
-        setToastContent({ title: "Successfully Added", description: data?.title });
-      }
+  // Add/remove favorite mutation
+  const toggleFavoriteMutation = useToggleFavorite(movieId, data, Boolean(isFavorited), {
+    onToast: (payload) => {
+      setToastContent(payload);
       setToastOpen(true);
-    },
-    onError: (error) => {
-      const err = error as { code?: string };
-      if (err?.code === "23505") {
-        setToastContent({ title: "Already in favorites" });
-      } else {
-        setToastContent({ title: "Something went wrong" });
-      }
-      setToastOpen(true);
-      queryClient.invalidateQueries({ queryKey: ["favorites", "isFavorited", movieId] });
     },
   });
 
