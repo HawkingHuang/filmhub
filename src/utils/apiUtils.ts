@@ -1,4 +1,3 @@
-import { API_BASE_URL } from "../lib/api";
 import type { TmdbResponse } from "../types/genreTypes";
 import type { MovieDetail, MovieRecommendation, CreditsResponse, VideosResponse } from "../types/movieTypes";
 import type { ActorDetail, ActorCreditsResponse } from "../types/actorTypes";
@@ -12,40 +11,31 @@ const REQUIRED_PARAMS: Record<string, string> = {
 
 export const getRandomPage = (max = 10) => String(Math.floor(Math.random() * max) + 1);
 
-export const getApiKey = (): string => {
-  const key = import.meta.env.VITE_TMDB_API_KEY as string | undefined;
-  if (!key) {
-    throw new Error("Missing VITE_TMDB_API_KEY");
+const buildTmdbProxyUrl = (endpoint: string, params?: Record<string, string>, includeRequiredParams = false) => {
+  const path = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
+  const url = new URL("/api/tmdb", "http://local");
+  url.searchParams.set("path", path);
+
+  if (includeRequiredParams) {
+    Object.entries(REQUIRED_PARAMS).forEach(([key, value]) => {
+      if (key === "page") {
+        url.searchParams.set(key, getRandomPage(10));
+      } else {
+        url.searchParams.set(key, value);
+      }
+    });
   }
-  return key;
-};
 
-export const getOmdbApiKey = (): string | undefined => {
-  return import.meta.env.VITE_OMDB_API_KEY as string | undefined;
-};
-
-const attachAuthParams = (url: URL) => {
-  url.searchParams.set("api_key", getApiKey());
-  url.searchParams.set("language", "en-US");
-};
-
-export const buildUrl = (endpoint: string, params?: Record<string, string>) => {
-  const url = new URL(`${API_BASE_URL}${endpoint}`);
-  attachAuthParams(url);
-  Object.entries(REQUIRED_PARAMS).forEach(([key, value]) => {
-    if (key === "page") {
-      url.searchParams.set(key, getRandomPage(10));
-    } else {
-      url.searchParams.set(key, value);
-    }
-  });
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
       url.searchParams.set(key, value);
     });
   }
-  return url.toString();
+
+  return `${url.pathname}${url.search}`;
 };
+
+export const buildUrl = (endpoint: string, params?: Record<string, string>) => buildTmdbProxyUrl(endpoint, params, true);
 
 export const fetchMovies = async (endpoint: string, params?: Record<string, string>) => {
   const response = await fetch(buildUrl(endpoint, params));
@@ -56,23 +46,16 @@ export const fetchMovies = async (endpoint: string, params?: Record<string, stri
 };
 
 export const fetchMovieDetail = async (movieId: string) => {
-  const url = new URL(`${API_BASE_URL}/movie/${movieId}`);
-  attachAuthParams(url);
-
-  const response = await fetch(url.toString());
+  const response = await fetch(buildTmdbProxyUrl(`/movie/${movieId}`));
   if (!response.ok) {
     throw new Error("Failed to fetch movie details");
   }
   const movie = (await response.json()) as MovieDetail;
 
   let imdbRating: string | null = null;
-  const omdbKey = getOmdbApiKey();
-  if (movie.imdb_id && omdbKey) {
+  if (movie.imdb_id) {
     try {
-      const omdbUrl = new URL("https://www.omdbapi.com/");
-      omdbUrl.searchParams.set("i", movie.imdb_id);
-      omdbUrl.searchParams.set("apikey", omdbKey);
-      const omdbResponse = await fetch(omdbUrl.toString());
+      const omdbResponse = await fetch(`/api/omdb?i=${encodeURIComponent(movie.imdb_id)}`);
       if (omdbResponse.ok) {
         const omdbData = (await omdbResponse.json()) as { imdbRating?: string };
         imdbRating = omdbData.imdbRating ?? null;
@@ -86,14 +69,9 @@ export const fetchMovieDetail = async (movieId: string) => {
 };
 
 export const fetchRecommendations = async (movieId: string) => {
-  const base = `${API_BASE_URL}/movie/${movieId}/recommendations`;
   // randomly pick page 1 or 2
   const page = Math.random() < 0.5 ? 1 : 2;
-  const url = new URL(base);
-  attachAuthParams(url);
-  url.searchParams.set("page", String(page));
-
-  const response = await fetch(url.toString());
+  const response = await fetch(buildTmdbProxyUrl(`/movie/${movieId}/recommendations`, { page: String(page) }));
   if (!response.ok) {
     throw new Error("Failed to fetch recommendations");
   }
@@ -111,10 +89,7 @@ export const fetchRecommendations = async (movieId: string) => {
 };
 
 export const fetchCredits = async (movieId: string) => {
-  const url = new URL(`${API_BASE_URL}/movie/${movieId}/credits`);
-  attachAuthParams(url);
-
-  const response = await fetch(url.toString());
+  const response = await fetch(buildTmdbProxyUrl(`/movie/${movieId}/credits`));
   if (!response.ok) {
     throw new Error("Failed to fetch credits");
   }
@@ -122,10 +97,7 @@ export const fetchCredits = async (movieId: string) => {
 };
 
 export const fetchVideos = async (movieId: string) => {
-  const url = new URL(`${API_BASE_URL}/movie/${movieId}/videos`);
-  attachAuthParams(url);
-
-  const response = await fetch(url.toString());
+  const response = await fetch(buildTmdbProxyUrl(`/movie/${movieId}/videos`));
   if (!response.ok) {
     throw new Error("Failed to fetch videos");
   }
@@ -133,10 +105,7 @@ export const fetchVideos = async (movieId: string) => {
 };
 
 export const fetchActorDetail = async (personId: string) => {
-  const url = new URL(`${API_BASE_URL}/person/${personId}`);
-  attachAuthParams(url);
-
-  const response = await fetch(url.toString());
+  const response = await fetch(buildTmdbProxyUrl(`/person/${personId}`));
   if (!response.ok) {
     throw new Error("Failed to fetch actor details");
   }
@@ -144,10 +113,7 @@ export const fetchActorDetail = async (personId: string) => {
 };
 
 export const fetchActorCredits = async (personId: string) => {
-  const url = new URL(`${API_BASE_URL}/person/${personId}/movie_credits`);
-  attachAuthParams(url);
-
-  const response = await fetch(url.toString());
+  const response = await fetch(buildTmdbProxyUrl(`/person/${personId}/movie_credits`));
   if (!response.ok) {
     throw new Error("Failed to fetch actor credits");
   }
@@ -155,12 +121,7 @@ export const fetchActorCredits = async (personId: string) => {
 };
 
 export const fetchSearchMulti = async (query: string, page = 1) => {
-  const url = new URL(`${API_BASE_URL}/search/multi`);
-  attachAuthParams(url);
-  url.searchParams.set("query", query);
-  url.searchParams.set("page", String(page));
-
-  const response = await fetch(url.toString());
+  const response = await fetch(buildTmdbProxyUrl("/search/multi", { query, page: String(page) }));
   if (!response.ok) {
     throw new Error("Failed to fetch search results");
   }
