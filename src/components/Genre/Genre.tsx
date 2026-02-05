@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
+import type { Swiper as SwiperType } from "swiper";
 import type { NavigationOptions } from "swiper/types";
 import "swiper/css";
 import "swiper/css/navigation";
@@ -16,6 +17,7 @@ import styles from "./Genre.module.scss";
 import imageFallbackLandscape from "../../assets/images/image_fallback_landscape.png";
 
 function GenreRow({ title, endpoint, withGenres }: GenreRowProps) {
+  const swiperRef = useRef<SwiperType | null>(null);
   const prevRef = useRef<HTMLButtonElement | null>(null);
   const nextRef = useRef<HTMLButtonElement | null>(null);
   const isTrending = title.toLowerCase() === "trending";
@@ -91,6 +93,15 @@ function GenreRow({ title, endpoint, withGenres }: GenreRowProps) {
     };
   }, [imageUrls]);
 
+  const showSkeleton = isLoading || !preloaded;
+  const slideCount = Math.max(4, movies.length);
+
+  useEffect(() => {
+    if (!showSkeleton) {
+      swiperRef.current?.update?.();
+    }
+  }, [showSkeleton, movies.length]);
+
   if (isError) {
     return (
       <div className="container">
@@ -120,70 +131,87 @@ function GenreRow({ title, endpoint, withGenres }: GenreRowProps) {
         </div>
       </div>
 
-      {!isLoading && !isError && (
-        <>
-          <Swiper
-            modules={[Navigation]}
-            slidesPerView={4}
-            slidesPerGroup={4}
-            spaceBetween={16}
-            breakpoints={{
-              0: { slidesPerView: 2, slidesPerGroup: 2 },
-              481: { slidesPerView: 2, slidesPerGroup: 2 },
-              641: { slidesPerView: 3, slidesPerGroup: 3 },
-              1025: { slidesPerView: 4, slidesPerGroup: 4 },
-              1360: { slidesPerView: 4, slidesPerGroup: 4 },
-            }}
-            onBeforeInit={(swiper) => {
-              // Attach navigation elements before Swiper initializes
-              const nav = swiper.params.navigation as NavigationOptions;
-              nav.prevEl = prevRef.current;
-              nav.nextEl = nextRef.current;
-            }}
-            navigation={true}
-            speed={500}
-            grabCursor
-            touchRatio={1}
-            resistanceRatio={0.85}
-          >
-            {movies.map((movie) => {
-              const imagePath = movie.backdrop_path ?? movie.poster_path;
-              const imageUrl = imagePath ? `${BACKDROP_BASE_URL}${imagePath}` : imageFallbackLandscape;
-              const titleText = movie.title ?? movie.name ?? "Untitled";
-              return (
-                <SwiperSlide key={movie.id} className={styles.slide}>
-                  <Link to={`/movies/${movie.id}`} className={styles.cardLink}>
-                    <div className={styles.card}>
-                      <>
-                        {!preloaded && <Skeleton className={styles.skeleton} aria-hidden />}
-                        {preloaded && (
-                          <img
-                            className={styles.poster}
-                            src={imageUrl}
-                            alt={titleText}
-                            onLoad={(e) => {
-                              const el = e.currentTarget as HTMLImageElement;
-                              el.style.opacity = "1";
-                              el.style.transform = "translateY(0)";
-                            }}
-                            onError={(e) => {
-                              const el = e.currentTarget as HTMLImageElement;
-                              el.style.opacity = "1";
-                              el.style.transform = "translateY(0)";
-                              el.src = imageFallbackLandscape;
-                            }}
-                          />
-                        )}
-                      </>
-                      <div className={styles.cardTitle}>{titleText}</div>
-                    </div>
-                  </Link>
-                </SwiperSlide>
-              );
-            })}
-          </Swiper>
-        </>
-      )}
+      <Swiper
+        onSwiper={(swiper) => {
+          swiperRef.current = swiper;
+        }}
+        modules={[Navigation]}
+        slidesPerView={4}
+        slidesPerGroup={4}
+        spaceBetween={16}
+        breakpoints={{
+          0: { slidesPerView: 2, slidesPerGroup: 2 },
+          481: { slidesPerView: 2, slidesPerGroup: 2 },
+          641: { slidesPerView: 3, slidesPerGroup: 3 },
+          1025: { slidesPerView: 4, slidesPerGroup: 4 },
+          1360: { slidesPerView: 4, slidesPerGroup: 4 },
+        }}
+        onBeforeInit={(swiper) => {
+          // Attach navigation elements before Swiper initializes
+          const nav = swiper.params.navigation as NavigationOptions;
+          nav.prevEl = prevRef.current;
+          nav.nextEl = nextRef.current;
+        }}
+        navigation={true}
+        speed={500}
+        grabCursor
+        touchRatio={1}
+        resistanceRatio={0.85}
+      >
+        {Array.from({ length: slideCount }).map((_, index) => {
+          const movie = movies[index];
+          const imagePath = movie ? (movie.backdrop_path ?? movie.poster_path) : null;
+          const imageUrl = imagePath ? `${BACKDROP_BASE_URL}${imagePath}` : imageFallbackLandscape;
+          const titleText = movie?.title ?? movie?.name ?? "";
+
+          const cardContent = (
+            <div className={styles.card}>
+              {movie ? (
+                <img
+                  className={styles.poster}
+                  src={imageUrl}
+                  alt={titleText}
+                  onLoad={(e) => {
+                    const el = e.currentTarget as HTMLImageElement;
+                    el.style.opacity = "1";
+                    el.style.transform = "translateY(0)";
+                  }}
+                  onError={(e) => {
+                    const el = e.currentTarget as HTMLImageElement;
+                    el.style.opacity = "1";
+                    el.style.transform = "translateY(0)";
+                    el.src = imageFallbackLandscape;
+                  }}
+                />
+              ) : (
+                <div className={styles.posterPlaceholder} aria-hidden />
+              )}
+              <div
+                className={styles.skeletonOverlay}
+                style={{
+                  opacity: showSkeleton || !movie ? 1 : 0,
+                }}
+                aria-hidden
+              >
+                <Skeleton className={styles.skeleton} />
+              </div>
+              <div className={styles.cardTitle}>{titleText || "\u00A0"}</div>
+            </div>
+          );
+
+          return (
+            <SwiperSlide key={movie?.id ?? `placeholder-${index}`} className={styles.slide}>
+              {movie ? (
+                <Link to={`/movies/${movie.id}`} className={styles.cardLink}>
+                  {cardContent}
+                </Link>
+              ) : (
+                <div className={styles.cardLink}>{cardContent}</div>
+              )}
+            </SwiperSlide>
+          );
+        })}
+      </Swiper>
     </section>
   );
 }
