@@ -1,14 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { HeartFilledIcon, EyeOpenIcon } from "@radix-ui/react-icons";
 import { Tabs } from "@radix-ui/themes";
-import { useQuery } from "@tanstack/react-query";
+import { useFavorites } from "../../hooks/useFavorites";
 import { useSelector } from "react-redux";
 import { Link, useLocation } from "react-router-dom";
 import { PAGE_SIZE } from "../../lib/constants";
 import ResponsivePagination from "react-responsive-pagination";
 import { POSTER_BASE_URL } from "../../lib/api";
 import type { RootState } from "../../store";
-import { fetchFavorites } from "../../utils/favoritesUtils";
 import imageFallbackPortrait from "../../assets/images/image_fallback_portrait.png";
 import styles from "./User.module.scss";
 import "react-responsive-pagination/themes/minimal.css";
@@ -24,11 +23,7 @@ function User() {
   const [tab, setTab] = useState(initialTab);
   const [page, setPage] = useState(1);
 
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["favorites", "list", userId],
-    queryFn: () => fetchFavorites(userId as string),
-    enabled: Boolean(userId),
-  });
+  const { data, isLoading, isError } = useFavorites(userId, { enabled: Boolean(userId) });
 
   const favorites = useMemo(() => data ?? [], [data]);
   const totalPages = Math.ceil(favorites.length / PAGE_SIZE);

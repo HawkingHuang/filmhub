@@ -1,16 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useMovieGenres } from "../../hooks/useMovieGenres";
 import ResponsivePagination from "react-responsive-pagination";
 import "react-responsive-pagination/themes/minimal.css";
 import { POSTER_BASE_URL } from "../../lib/api";
-import { fetchMovieGenres, fetchMovies } from "../../utils/apiUtils";
 import type { MovieGenre, TmdbMovie } from "../../types/genreTypes";
 import styles from "./Genre.module.scss";
 import imageFallbackPortrait from "../../assets/images/image_fallback_portrait.png";
 import { Select } from "@radix-ui/themes";
 import * as Toast from "@radix-ui/react-toast";
 import FullPageSpinner from "../../components/FullPageSpinner/FullPageSpinner";
+import { useMovie } from "../../hooks/useMovie";
 
 function Genre() {
   const { id } = useParams();
@@ -22,21 +22,16 @@ function Genre() {
   const pageParam = Number(searchParams.get("page") ?? "1");
   const page = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
 
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["tmdb", "discover", "genre", safeGenreId, page],
-    queryFn: () =>
-      fetchMovies("/discover/movie", {
-        with_genres: String(safeGenreId),
-        page: String(page),
-      }),
-    enabled: Boolean(safeGenreId),
-  });
+  const { data, isLoading, isError } = useMovie(
+    "/discover/movie",
+    {
+      with_genres: String(safeGenreId),
+      page: String(page),
+    },
+    { enabled: Boolean(safeGenreId) },
+  );
 
-  const { data: genresData, isError: isGenresError } = useQuery({
-    queryKey: ["tmdb", "genres", "movie"],
-    queryFn: fetchMovieGenres,
-    staleTime: 1000 * 60 * 60 * 24,
-  });
+  const { data: genresData, isError: isGenresError } = useMovieGenres();
 
   const [toastOpen, setToastOpen] = useState(false);
   const [toastContent, setToastContent] = useState<{ title: string; description?: string } | null>(null);

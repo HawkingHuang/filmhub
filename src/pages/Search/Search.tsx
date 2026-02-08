@@ -2,9 +2,8 @@ import { useMemo } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import ResponsivePagination from "react-responsive-pagination";
 import "react-responsive-pagination/themes/minimal.css";
-import { useQuery } from "@tanstack/react-query";
+import { useSearchMulti } from "../../hooks/useSearchMulti";
 import { BACKDROP_BASE_URL, POSTER_BASE_URL, PROFILE_BASE_URL } from "../../lib/api";
-import { fetchSearchMulti } from "../../utils/apiUtils";
 import type { SearchMultiResult } from "../../types/searchTypes";
 import styles from "./Search.module.scss";
 import imageFallbackPortrait from "../../assets/images/image_fallback_portrait.png";
@@ -16,11 +15,7 @@ function Search() {
   const pageParam = Number(searchParams.get("page") ?? "1");
   const page = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
 
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["tmdb", "search", query, page],
-    queryFn: () => fetchSearchMulti(query, page),
-    enabled: Boolean(query),
-  });
+  const { data, isLoading, isError } = useSearchMulti(query, page, { enabled: Boolean(query) });
 
   const results = useMemo<SearchMultiResult[]>(() => data?.results ?? [], [data]);
   const totalPages = data?.total_pages ?? 0;

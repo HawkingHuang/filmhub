@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import type { Swiper as SwiperType } from "swiper";
@@ -12,9 +11,9 @@ import { GENRES } from "../../lib/constants";
 import { Skeleton } from "@radix-ui/themes";
 import type { GenreRowProps } from "../../types/genreTypes";
 import { BACKDROP_BASE_URL } from "../../lib/api";
-import { fetchMovies } from "../../utils/apiUtils";
 import styles from "./Genre.module.scss";
 import imageFallbackLandscape from "../../assets/images/image_fallback_landscape.png";
+import { useMovie } from "../../hooks/useMovie";
 
 function GenreRow({ title, endpoint, withGenres }: GenreRowProps) {
   const swiperRef = useRef<SwiperType | null>(null);
@@ -23,10 +22,7 @@ function GenreRow({ title, endpoint, withGenres }: GenreRowProps) {
   const isTrending = title.toLowerCase() === "trending";
   const rowLink = withGenres ? `/genres/${withGenres}?page=1` : "";
 
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["tmdb", title, endpoint, withGenres],
-    queryFn: () => fetchMovies(endpoint, withGenres ? { with_genres: String(withGenres) } : undefined),
-  });
+  const { data, isLoading, isError } = useMovie(endpoint, withGenres ? { with_genres: String(withGenres) } : undefined, {});
 
   const movies = useMemo(() => {
     return data?.results ?? [];
