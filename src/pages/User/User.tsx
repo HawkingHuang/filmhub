@@ -3,7 +3,7 @@ import { HeartFilledIcon, EyeOpenIcon } from "@radix-ui/react-icons";
 import { Tabs } from "@radix-ui/themes";
 import { useFavorites } from "../../hooks/useFavorites";
 import { useSelector } from "react-redux";
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { PAGE_SIZE } from "../../lib/constants";
 import ResponsivePagination from "react-responsive-pagination";
 import { POSTER_BASE_URL } from "../../lib/api";
@@ -13,6 +13,8 @@ import styles from "./User.module.scss";
 import "react-responsive-pagination/themes/minimal.css";
 import FullPageSpinner from "../../components/FullPageSpinner/FullPageSpinner";
 import { readRecentViewFromLocalStorage } from "../../utils/commonUtils";
+import ResultsGrid, { type ResultsGridItem } from "../../components/ResultsGrid";
+import gridStyles from "../../components/ResultsGrid/ResultsGrid.module.scss";
 
 function User() {
   const user = useSelector((state: RootState) => state.auth.user);
@@ -33,10 +35,38 @@ function User() {
     return favorites.slice(start, start + PAGE_SIZE);
   }, [favorites, pageSafe]);
 
+  const favoriteItems = useMemo<ResultsGridItem[]>(() => {
+    return pagedFavorites.map((item) => {
+      const imageUrl = item.poster_path ? `${POSTER_BASE_URL}${item.poster_path}` : imageFallbackPortrait;
+      return {
+        id: item.movie_id,
+        href: `/movies/${item.movie_id}`,
+        title: item.title,
+        imageSrc: imageUrl,
+        alt: item.title,
+        loading: "lazy",
+      };
+    });
+  }, [pagedFavorites]);
+
   const recentMovies = useMemo(() => {
     if (!tab) return [];
     return readRecentViewFromLocalStorage();
   }, [tab]);
+
+  const recentItems = useMemo<ResultsGridItem[]>(() => {
+    return recentMovies.map((item) => {
+      const imageUrl = item.poster_path ? `${POSTER_BASE_URL}${item.poster_path}` : imageFallbackPortrait;
+      return {
+        id: item.movie_id,
+        href: `/movies/${item.movie_id}`,
+        title: item.title,
+        imageSrc: imageUrl,
+        alt: item.title,
+        loading: "lazy",
+      };
+    });
+  }, [recentMovies]);
 
   useEffect(() => {
     if (locationTab === "recent") {
@@ -74,32 +104,10 @@ function User() {
             {isError && <div className={styles.state}>Unable to load favorites.</div>}
             {!isLoading && !isError && favorites.length === 0 && <div className={styles.state}>No favorites yet</div>}
 
-            {!isLoading && !isError && favorites.length > 0 && (
-              <div className={styles.resultsGrid}>
-                {pagedFavorites.map((item) => {
-                  const imageUrl = item.poster_path ? `${POSTER_BASE_URL}${item.poster_path}` : imageFallbackPortrait;
-                  return (
-                    <Link key={item.movie_id} className={styles.cardLink} to={`/movies/${item.movie_id}`}>
-                      <div className={styles.card}>
-                        <img
-                          className={styles.poster}
-                          src={imageUrl}
-                          alt={item.title}
-                          loading="lazy"
-                          onError={(e) => {
-                            e.currentTarget.src = imageFallbackPortrait;
-                          }}
-                        />
-                        <div className={styles.cardTitle}>{item.title}</div>
-                      </div>
-                    </Link>
-                  );
-                })}
-              </div>
-            )}
+            {!isLoading && !isError && favorites.length > 0 && <ResultsGrid items={favoriteItems} />}
 
             {totalPages > 1 && (
-              <div className={styles.paginationWrap}>
+              <div className={gridStyles.paginationWrap}>
                 <ResponsivePagination current={pageSafe} total={totalPages} onPageChange={setPage} />
               </div>
             )}
@@ -107,29 +115,7 @@ function User() {
 
           <Tabs.Content className={styles.tabContent} value="recent">
             {recentMovies.length === 0 && <div className={styles.state}>No recently viewed movies</div>}
-            {recentMovies.length > 0 && (
-              <div className={styles.resultsGrid}>
-                {recentMovies.map((item) => {
-                  const imageUrl = item.poster_path ? `${POSTER_BASE_URL}${item.poster_path}` : imageFallbackPortrait;
-                  return (
-                    <Link key={item.movie_id} className={styles.cardLink} to={`/movies/${item.movie_id}`}>
-                      <div className={styles.card}>
-                        <img
-                          className={styles.poster}
-                          src={imageUrl}
-                          alt={item.title}
-                          loading="lazy"
-                          onError={(e) => {
-                            e.currentTarget.src = imageFallbackPortrait;
-                          }}
-                        />
-                        <div className={styles.cardTitle}>{item.title}</div>
-                      </div>
-                    </Link>
-                  );
-                })}
-              </div>
-            )}
+            {recentMovies.length > 0 && <ResultsGrid items={recentItems} />}
           </Tabs.Content>
         </Tabs.Root>
       </section>

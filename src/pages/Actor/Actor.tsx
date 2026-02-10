@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { POSTER_BASE_URL, PROFILE_BASE_URL } from "../../lib/api";
 import type { ActorCredit } from "../../types/actorTypes";
 import styles from "./Actor.module.scss";
@@ -7,6 +7,7 @@ import { CrossCircledIcon, MagnifyingGlassIcon, OpenInNewWindowIcon } from "@rad
 import { Select } from "@radix-ui/themes";
 import * as Dialog from "@radix-ui/react-dialog";
 import FullPageSpinner from "../../components/FullPageSpinner/FullPageSpinner";
+import ResultsGrid, { type ResultsGridItem } from "../../components/ResultsGrid";
 import { useIsClamped } from "../../hooks/useIsClamped";
 import { useActorDetail } from "../../hooks/useActorDetail";
 import { useActorCredits } from "../../hooks/useActorCredits";
@@ -64,6 +65,22 @@ function Actor() {
       return title.includes(normalizedQuery) || character.includes(normalizedQuery);
     });
   }, [creditQuery, creditYear, sortedCredits]);
+
+  const creditItems = useMemo<ResultsGridItem[]>(() => {
+    return filteredCredits.map((credit: ActorCredit) => {
+      const posterPath = credit.poster_path || credit.backdrop_path || null;
+      const posterUrl = posterPath ? `${POSTER_BASE_URL}${posterPath}` : imageFallbackPortrait;
+      const titleText = credit.title ?? "Untitled";
+      return {
+        id: credit.id,
+        href: `/movies/${credit.id}`,
+        title: titleText,
+        imageSrc: posterUrl,
+        alt: titleText,
+        meta: <div className={styles.creditMeta}>{credit.character || "—"}</div>,
+      };
+    });
+  }, [filteredCredits]);
 
   if (isLoading) {
     return <FullPageSpinner />;
@@ -175,32 +192,7 @@ function Actor() {
               </div>
             </div>
           </div>
-          <div className={styles.resultsGrid}>
-            {filteredCredits.length > 0 ? (
-              filteredCredits.map((credit: ActorCredit) => {
-                const posterPath = credit.poster_path || credit.backdrop_path || null;
-                const posterUrl = posterPath ? `${POSTER_BASE_URL}${posterPath}` : imageFallbackPortrait;
-                return (
-                  <Link key={credit.id} to={`/movies/${credit.id}`} className={styles.cardLink}>
-                    <div className={styles.card}>
-                      <img
-                        className={styles.poster}
-                        src={posterUrl}
-                        alt={credit.title}
-                        onError={(e) => {
-                          e.currentTarget.src = imageFallbackPortrait;
-                        }}
-                      />
-                      <div className={styles.cardTitle}>{credit.title}</div>
-                      <div className={styles.creditMeta}>{credit.character || "—"}</div>
-                    </div>
-                  </Link>
-                );
-              })
-            ) : (
-              <div>No credits found.</div>
-            )}
-          </div>
+          {creditItems.length > 0 ? <ResultsGrid items={creditItems} /> : <div>No credits found.</div>}
         </section>
       )}
     </div>

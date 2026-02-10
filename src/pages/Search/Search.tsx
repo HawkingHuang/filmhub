@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import ResponsivePagination from "react-responsive-pagination";
 import "react-responsive-pagination/themes/minimal.css";
 import { useSearchMulti } from "../../hooks/useSearchMulti";
@@ -8,6 +8,8 @@ import type { SearchMultiResult } from "../../types/searchTypes";
 import styles from "./Search.module.scss";
 import imageFallbackPortrait from "../../assets/images/image_fallback_portrait.png";
 import FullPageSpinner from "../../components/FullPageSpinner/FullPageSpinner";
+import ResultsGrid, { type ResultsGridItem } from "../../components/ResultsGrid";
+import gridStyles from "../../components/ResultsGrid/ResultsGrid.module.scss";
 
 function Search() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -20,6 +22,31 @@ function Search() {
   const results = useMemo<SearchMultiResult[]>(() => data?.results ?? [], [data]);
   const totalPages = data?.total_pages ?? 0;
   const visibleResults = results;
+
+  const resultItems = useMemo<ResultsGridItem[]>(() => {
+    return visibleResults.map((item) => {
+      const titleText = item.title ?? item.name ?? "Untitled";
+      let imageUrl: string | undefined;
+      if (item.media_type === "person" && item.profile_path) {
+        imageUrl = `${PROFILE_BASE_URL}${item.profile_path}`;
+      } else if (item.poster_path) {
+        imageUrl = `${POSTER_BASE_URL}${item.poster_path}`;
+      } else if (item.backdrop_path) {
+        imageUrl = `${BACKDROP_BASE_URL}${item.backdrop_path}`;
+      } else {
+        imageUrl = imageFallbackPortrait;
+      }
+      const linkTo = item.media_type === "person" ? `/actors/${item.id}` : `/movies/${item.id}`;
+      return {
+        id: `${item.media_type}-${item.id}`,
+        href: linkTo,
+        title: titleText,
+        imageSrc: imageUrl,
+        alt: titleText,
+        loading: "lazy",
+      };
+    });
+  }, [visibleResults]);
 
   const handlePageChange = (nextPage: number) => {
     const nextParams = new URLSearchParams(searchParams);
@@ -43,44 +70,10 @@ function Search() {
         {isError && <div className={styles.state}>Unable to load results.</div>}
         {!isLoading && !isError && query && visibleResults.length === 0 && <div className={styles.state}>No results found.</div>}
 
-        {!isLoading && !isError && visibleResults.length > 0 && (
-          <div className={styles.resultsGrid}>
-            {visibleResults.map((item) => {
-              const titleText = item.title ?? item.name ?? "Untitled";
-              let imageUrl: string | undefined;
-              if (item.media_type === "person" && item.profile_path) {
-                imageUrl = `${PROFILE_BASE_URL}${item.profile_path}`;
-              } else if (item.poster_path) {
-                imageUrl = `${POSTER_BASE_URL}${item.poster_path}`;
-              } else if (item.backdrop_path) {
-                imageUrl = `${BACKDROP_BASE_URL}${item.backdrop_path}`;
-              } else {
-                imageUrl = imageFallbackPortrait;
-              }
-              const linkTo = item.media_type === "person" ? `/actors/${item.id}` : `/movies/${item.id}`;
-
-              return (
-                <Link key={`${item.media_type}-${item.id}`} className={styles.cardLink} to={linkTo}>
-                  <div className={styles.card}>
-                    <img
-                      className={styles.poster}
-                      src={imageUrl}
-                      alt={titleText}
-                      loading="lazy"
-                      onError={(e) => {
-                        e.currentTarget.src = imageFallbackPortrait;
-                      }}
-                    />
-                    <div className={styles.cardTitle}>{titleText}</div>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        )}
+        {!isLoading && !isError && resultItems.length > 0 && <ResultsGrid items={resultItems} />}
 
         {query && totalPages > 1 && (
-          <div className={styles.paginationWrap}>
+          <div className={gridStyles.paginationWrap}>
             <ResponsivePagination current={page} total={totalPages} onPageChange={handlePageChange} />
           </div>
         )}

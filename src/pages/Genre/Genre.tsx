@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useMovieGenres } from "../../hooks/useMovieGenres";
 import ResponsivePagination from "react-responsive-pagination";
 import "react-responsive-pagination/themes/minimal.css";
@@ -10,6 +10,8 @@ import imageFallbackPortrait from "../../assets/images/image_fallback_portrait.p
 import { Select } from "@radix-ui/themes";
 import * as Toast from "@radix-ui/react-toast";
 import FullPageSpinner from "../../components/FullPageSpinner/FullPageSpinner";
+import ResultsGrid, { type ResultsGridItem } from "../../components/ResultsGrid";
+import gridStyles from "../../components/ResultsGrid/ResultsGrid.module.scss";
 import { useMovie } from "../../hooks/useMovie";
 
 function Genre() {
@@ -41,6 +43,21 @@ function Genre() {
 
   const results = useMemo<TmdbMovie[]>(() => data?.results ?? [], [data]);
   const totalPages = data?.total_pages ?? 0;
+
+  const resultItems = useMemo<ResultsGridItem[]>(() => {
+    return results.map((item) => {
+      const titleText = item.title ?? item.name ?? "Untitled";
+      const imageUrl = item.poster_path ? `${POSTER_BASE_URL}${item.poster_path}` : imageFallbackPortrait;
+      return {
+        id: item.id,
+        href: `/movies/${item.id}`,
+        title: titleText,
+        imageSrc: imageUrl,
+        alt: titleText,
+        loading: "lazy",
+      };
+    });
+  }, [results]);
 
   const handlePageChange = (nextPage: number) => {
     const nextParams = new URLSearchParams(searchParams);
@@ -90,33 +107,10 @@ function Genre() {
         {isError && <div className={styles.state}>Unable to load results.</div>}
         {!isLoading && !isError && safeGenreId > 0 && results.length === 0 && <div className={styles.state}>No results found</div>}
 
-        {!isLoading && !isError && results.length > 0 && safeGenreId && (
-          <div className={styles.resultsGrid}>
-            {results.map((item) => {
-              const titleText = item.title ?? item.name ?? "Untitled";
-              const imageUrl = item.poster_path ? `${POSTER_BASE_URL}${item.poster_path}` : imageFallbackPortrait;
-              return (
-                <Link key={item.id} className={styles.cardLink} to={`/movies/${item.id}`}>
-                  <div className={styles.card}>
-                    <img
-                      className={styles.poster}
-                      src={imageUrl}
-                      alt={titleText}
-                      loading="lazy"
-                      onError={(e) => {
-                        e.currentTarget.src = imageFallbackPortrait;
-                      }}
-                    />
-                    <div className={styles.cardTitle}>{titleText}</div>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        )}
+        {!isLoading && !isError && resultItems.length > 0 && safeGenreId && <ResultsGrid items={resultItems} />}
 
         {safeGenreId > 0 && totalPages > 1 && (
-          <div className={styles.paginationWrap}>
+          <div className={gridStyles.paginationWrap}>
             <ResponsivePagination current={page} total={totalPages} onPageChange={handlePageChange} />
           </div>
         )}

@@ -1,5 +1,5 @@
-@use "./mixins" as *;
-@use "./state.module" as *;
+@use "../../assets/styles/mixins" as *;
+@use "../../assets/styles/state.module" as *;
 
 .resultsGrid {
   display: grid;

@@ -1,6 +1,5 @@
 @use "../../assets/styles/mixins" as *;
 @use "../../assets/styles/state.module" as *;
-@use "../../assets/styles/listLayout.module" as *;
 
 .loadingSpinner {
   position: fixed !important;
