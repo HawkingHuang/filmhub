@@ -34,8 +34,8 @@ A modern movie discovery app built with React, TypeScript, and Vite. It integrat
 
 Create a .env file in the project root:
 
-- VITE_TMDB_API_KEY (required)
-- VITE_OMDB_API_KEY (optional, enables IMDb ratings)
+- TMDB_API_KEY (required)
+- OMDB_API_KEY (optional, enables IMDb ratings)
 - VITE_SUPABASE_URL (required)
 - VITE_SUPABASE_KEY (required)
 
