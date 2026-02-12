@@ -7,22 +7,23 @@ import "swiper/css";
 import "swiper/css/navigation";
 import { ThickArrowLeftIcon, ThickArrowRightIcon, OpenInNewWindowIcon } from "@radix-ui/react-icons";
 import { Link } from "react-router-dom";
-import { GENRES } from "../../lib/constants";
+import { GENRES_BY_TYPE } from "../../lib/constants";
 import { Skeleton } from "@radix-ui/themes";
 import type { GenreRowProps } from "../../types/genreTypes";
 import { BACKDROP_BASE_URL } from "../../lib/api";
 import styles from "./Genre.module.scss";
 import imageFallbackLandscape from "../../assets/images/image_fallback_landscape.png";
-import { useMovie } from "../../hooks/useMovie";
+import { useTmdbList } from "../../hooks/useTmdbList";
 
-function GenreRow({ title, endpoint, withGenres }: GenreRowProps) {
+function GenreRow({ title, endpoint, withGenres, mediaType }: GenreRowProps) {
   const swiperRef = useRef<SwiperType | null>(null);
   const prevRef = useRef<HTMLButtonElement | null>(null);
   const nextRef = useRef<HTMLButtonElement | null>(null);
   const isTrending = title.toLowerCase() === "trending";
-  const rowLink = withGenres ? `/genres/${withGenres}?page=1` : "";
+  const rowLink = withGenres ? `/genres/${withGenres}?page=1&type=${mediaType}` : "";
+  const detailBasePath = mediaType === "tv" ? "/tv" : "/movies";
 
-  const { data, isLoading, isError } = useMovie(endpoint, withGenres ? { with_genres: String(withGenres) } : undefined, {});
+  const { data, isLoading, isError } = useTmdbList(endpoint, withGenres ? { with_genres: String(withGenres) } : undefined, {});
 
   const movies = useMemo(() => {
     return data?.results ?? [];
@@ -198,7 +199,7 @@ function GenreRow({ title, endpoint, withGenres }: GenreRowProps) {
           return (
             <SwiperSlide key={movie?.id ?? `placeholder-${index}`} className={styles.slide}>
               {movie ? (
-                <Link to={`/movies/${movie.id}`} className={styles.cardLink}>
+                <Link to={`${detailBasePath}/${movie.id}`} className={styles.cardLink}>
                   {cardContent}
                 </Link>
               ) : (
@@ -212,12 +213,18 @@ function GenreRow({ title, endpoint, withGenres }: GenreRowProps) {
   );
 }
 
-function Genre() {
+type GenreProps = {
+  searchParams: URLSearchParams;
+};
+
+function Genre({ searchParams }: GenreProps) {
+  const type = searchParams.get("type") === "tv" ? "tv" : "movie";
+  const defaultEndpoint = type === "tv" ? "/discover/tv" : "/discover/movie";
   return (
     <div className="container">
       <div className={styles.genre}>
-        {GENRES.map((genre) => (
-          <GenreRow key={genre.key} title={genre.title} endpoint={genre.endpoint ?? "/discover/movie"} withGenres={genre.withGenres} />
+        {GENRES_BY_TYPE[type].map((genre) => (
+          <GenreRow key={genre.key} title={genre.title} endpoint={genre.endpoint ?? defaultEndpoint} withGenres={genre.withGenres} mediaType={type} />
         ))}
       </div>
     </div>

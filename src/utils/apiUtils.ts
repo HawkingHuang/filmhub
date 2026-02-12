@@ -1,7 +1,8 @@
 import type { TmdbResponse } from "../types/genreTypes";
-import type { MovieDetail, MovieRecommendation, CreditsResponse, VideosResponse } from "../types/movieTypes";
+import type { MovieDetail, Recommendation, CreditsResponse, VideosResponse } from "../types/movieTypes";
 import type { ActorDetail, ActorCreditsResponse } from "../types/actorTypes";
 import type { SearchMultiResponse } from "../types/searchTypes";
+import type { TvDetail } from "../types/tvTypes";
 import type { MovieGenresResponse } from "../types/genreTypes";
 
 const REQUIRED_PARAMS: Record<string, string> = {
@@ -37,7 +38,7 @@ const buildTmdbProxyUrl = (endpoint: string, params?: Record<string, string>, in
 
 export const buildUrl = (endpoint: string, params?: Record<string, string>) => buildTmdbProxyUrl(endpoint, params, true);
 
-export const fetchMovies = async (endpoint: string, params?: Record<string, string>) => {
+export const fetchTmdbList = async (endpoint: string, params?: Record<string, string>) => {
   const response = await fetch(buildUrl(endpoint, params));
   if (!response.ok) {
     throw new Error("Failed to fetch movies");
@@ -68,14 +69,48 @@ export const fetchMovieDetail = async (movieId: string) => {
   return { ...movie, imdb_rating: imdbRating } as MovieDetail;
 };
 
-export const fetchRecommendations = async (movieId: string) => {
+export const fetchTvDetail = async (tvId: string) => {
+  const response = await fetch(buildTmdbProxyUrl(`/tv/${tvId}`));
+  if (!response.ok) {
+    throw new Error("Failed to fetch tv details");
+  }
+  const tv = (await response.json()) as TvDetail;
+
+  let imdbRating: string | null = null;
+  const externalIds = await fetchTvExternalIds(tvId);
+  if (externalIds?.imdb_id) {
+    try {
+      const omdbResponse = await fetch(`/api/omdb?i=${encodeURIComponent(externalIds.imdb_id)}`);
+      if (omdbResponse.ok) {
+        const omdbData = (await omdbResponse.json()) as { imdbRating?: string };
+        imdbRating = omdbData.imdbRating ?? null;
+      }
+    } catch {
+      imdbRating = null;
+    }
+  }
+
+  return { ...tv, imdb_rating: imdbRating } as TvDetail;
+};
+
+export const fetchTvExternalIds = async (tvId: string) => {
+  const response = await fetch(buildTmdbProxyUrl(`/tv/${tvId}/external_ids`));
+  if (!response.ok) {
+    throw new Error("Failed to fetch tv external ids");
+  }
+  return (await response.json()) as { imdb_id: string | null };
+};
+
+export const fetchRecommendations = async (id: string, mediaType: "movie" | "tv" = "movie") => {
   // randomly pick page 1 or 2
   const page = Math.random() < 0.5 ? 1 : 2;
-  const response = await fetch(buildTmdbProxyUrl(`/movie/${movieId}/recommendations`, { page: String(page) }));
+  const response = await fetch(buildTmdbProxyUrl(`/${mediaType}/${id}/recommendations`, { page: String(page) }));
   if (!response.ok) {
-    throw new Error("Failed to fetch recommendations");
+    throw new Error(`Failed to fetch ${mediaType} recommendations`);
   }
-  const data = (await response.json()) as { results: MovieRecommendation[] };
+  const data = (await response.json()) as {
+    results: Recommendation[];
+  };
 
   const items = data.results ?? [];
   // shuffle (Fisher-Yates) and pick up to 4
@@ -88,18 +123,18 @@ export const fetchRecommendations = async (movieId: string) => {
   return { results: selected };
 };
 
-export const fetchCredits = async (movieId: string) => {
-  const response = await fetch(buildTmdbProxyUrl(`/movie/${movieId}/credits`));
+export const fetchCredits = async (id: string, mediaType: "movie" | "tv" = "movie") => {
+  const response = await fetch(buildTmdbProxyUrl(`/${mediaType}/${id}/credits`));
   if (!response.ok) {
-    throw new Error("Failed to fetch credits");
+    throw new Error(`Failed to fetch ${mediaType} credits`);
   }
   return (await response.json()) as CreditsResponse;
 };
 
-export const fetchVideos = async (movieId: string) => {
-  const response = await fetch(buildTmdbProxyUrl(`/movie/${movieId}/videos`));
+export const fetchVideos = async (id: string, mediaType: "movie" | "tv" = "movie") => {
+  const response = await fetch(buildTmdbProxyUrl(`/${mediaType}/${id}/videos`));
   if (!response.ok) {
-    throw new Error("Failed to fetch videos");
+    throw new Error(`Failed to fetch ${mediaType} videos`);
   }
   return (await response.json()) as VideosResponse;
 };

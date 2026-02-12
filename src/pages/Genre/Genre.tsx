@@ -12,7 +12,7 @@ import * as Toast from "@radix-ui/react-toast";
 import FullPageSpinner from "../../components/FullPageSpinner/FullPageSpinner";
 import ResultsGrid, { type ResultsGridItem } from "../../components/ResultsGrid";
 import gridStyles from "../../components/ResultsGrid/ResultsGrid.module.scss";
-import { useMovie } from "../../hooks/useMovie";
+import { useTmdbList } from "../../hooks/useTmdbList";
 
 function Genre() {
   const { id } = useParams();
@@ -23,9 +23,12 @@ function Genre() {
   const [searchParams, setSearchParams] = useSearchParams();
   const pageParam = Number(searchParams.get("page") ?? "1");
   const page = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
+  const type = searchParams.get("type") === "tv" ? "tv" : "movie";
+  const endpoint = type === "tv" ? "/discover/tv" : "/discover/movie";
+  const detailBasePath = type === "tv" ? "/tv" : "/movies";
 
-  const { data, isLoading, isError } = useMovie(
-    "/discover/movie",
+  const { data, isLoading, isError } = useTmdbList(
+    endpoint,
     {
       with_genres: String(safeGenreId),
       page: String(page),
@@ -50,7 +53,7 @@ function Genre() {
       const imageUrl = item.poster_path ? `${POSTER_BASE_URL}${item.poster_path}` : imageFallbackPortrait;
       return {
         id: item.id,
-        href: `/movies/${item.id}`,
+        href: `${detailBasePath}/${item.id}`,
         title: titleText,
         imageSrc: imageUrl,
         alt: titleText,
@@ -66,7 +69,7 @@ function Genre() {
   };
 
   const handleGenreChange = (nextGenreId: string) => {
-    navigate(`/genres/${nextGenreId}?page=1`);
+    navigate(`/genres/${nextGenreId}?page=1&type=${type}`);
   };
 
   useEffect(() => {

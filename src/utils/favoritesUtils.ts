@@ -20,6 +20,7 @@ export const addToFavorites = async (payload: FavoritePayload) => {
       title: payload.title,
       poster_path: payload.poster_path,
       backdrop_path: payload.backdrop_path,
+      media_type: payload.media_type,
     })
     .select()
     .maybeSingle();
@@ -54,11 +55,7 @@ export const checkIsFavorited = async (movieId: number) => {
 };
 
 export const fetchFavorites = async (userId: string) => {
-  const { data, error } = await supabase
-    .from("favorites")
-    .select("movie_id,title,poster_path,backdrop_path,created_at")
-    .eq("user_id", userId)
-    .order("created_at", { ascending: false });
+  const { data, error } = await supabase.from("favorites").select("movie_id,title,poster_path,backdrop_path,created_at,media_type").eq("user_id", userId).order("created_at", { ascending: false });
 
   if (error) {
     throw error as PostgrestError;

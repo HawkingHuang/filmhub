@@ -8,6 +8,7 @@ import Genre from "./pages/Genre/Genre";
 import Home from "./pages/Home/Home";
 import Login from "./pages/Login/Login";
 import Movie from "./pages/Movie/Movie";
+import Tv from "./pages/Tv/Tv";
 import Search from "./pages/Search/Search";
 import Signup from "./pages/Signup/Signup";
 import User from "./pages/User/User";
@@ -51,6 +52,10 @@ const router = createBrowserRouter([
       {
         path: "/movies/:id",
         element: <Movie />,
+      },
+      {
+        path: "/tv/:id",
+        element: <Tv />,
       },
       {
         path: "/actors/:id",

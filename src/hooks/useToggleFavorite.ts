@@ -2,11 +2,15 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useMutation } from "@tanstack/react-query";
 import { addToFavorites, deleteFromFavorites } from "../utils/favoritesUtils";
 import type { UseToggleFavoriteOptions } from "../types/toastTypes";
-import type { MovieDetail } from "../types/movieTypes";
+type FavoriteTarget = {
+  title: string;
+  poster_path: string | null;
+  backdrop_path: string | null;
+};
 
-export function useToggleFavorite(movieId: number | null, movie: MovieDetail | undefined, isFavorited: boolean, options: UseToggleFavoriteOptions) {
+export function useToggleFavorite(movieId: number | null, movie: FavoriteTarget | undefined, mediaType: "movie" | "tv", isFavorited: boolean, options: UseToggleFavoriteOptions) {
   const queryClient = useQueryClient();
-
+  console.log("movie:", movie);
   return useMutation({
     mutationFn: async () => {
       if (!movieId || !movie) {
@@ -22,6 +26,7 @@ export function useToggleFavorite(movieId: number | null, movie: MovieDetail | u
         title: movie.title,
         poster_path: movie.poster_path ?? null,
         backdrop_path: movie.backdrop_path ?? null,
+        media_type: mediaType,
       });
     },
     onSuccess: () => {

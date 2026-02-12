@@ -1,12 +1,12 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { fetchMovies } from "../utils/apiUtils";
+import { fetchTmdbList } from "../utils/apiUtils";
 
-type UseMovieOptions = {
+type UseTmdbListOptions = {
   enabled?: boolean;
 };
 
-export const useMovie = (endpoint: string, params?: Record<string, string> | undefined, options?: UseMovieOptions) => {
+export const useTmdbList = (endpoint: string, params?: Record<string, string> | undefined, options?: UseTmdbListOptions) => {
   const cleanParams = useMemo(() => {
     if (!params) return undefined;
     return Object.fromEntries(Object.entries(params).filter(([, v]) => v !== undefined)) as Record<string, string>;
@@ -14,7 +14,7 @@ export const useMovie = (endpoint: string, params?: Record<string, string> | und
 
   return useQuery({
     queryKey: ["tmdb", endpoint, cleanParams],
-    queryFn: () => fetchMovies(endpoint, cleanParams),
+    queryFn: () => fetchTmdbList(endpoint, cleanParams),
     enabled: options?.enabled ?? true,
   });
 };

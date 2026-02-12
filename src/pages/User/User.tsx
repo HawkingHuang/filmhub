@@ -26,7 +26,6 @@ function User() {
   const [page, setPage] = useState(1);
 
   const { data, isLoading, isError } = useFavorites(userId, { enabled: Boolean(userId) });
-
   const favorites = useMemo(() => data ?? [], [data]);
   const totalPages = Math.ceil(favorites.length / PAGE_SIZE);
   const pageSafe = totalPages > 0 ? Math.min(page, totalPages) : 1;
@@ -40,7 +39,7 @@ function User() {
       const imageUrl = item.poster_path ? `${POSTER_BASE_URL}${item.poster_path}` : imageFallbackPortrait;
       return {
         id: item.movie_id,
-        href: `/movies/${item.movie_id}`,
+        href: item.media_type === "movie" ? `/movies/${item.movie_id}` : `/tv/${item.movie_id}`,
         title: item.title,
         imageSrc: imageUrl,
         alt: item.title,
@@ -59,7 +58,7 @@ function User() {
       const imageUrl = item.poster_path ? `${POSTER_BASE_URL}${item.poster_path}` : imageFallbackPortrait;
       return {
         id: item.movie_id,
-        href: `/movies/${item.movie_id}`,
+        href: item.media_type === "movie" ? `/movies/${item.movie_id}` : `/tv/${item.movie_id}`,
         title: item.title,
         imageSrc: imageUrl,
         alt: item.title,

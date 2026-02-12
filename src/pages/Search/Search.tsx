@@ -36,7 +36,7 @@ function Search() {
       } else {
         imageUrl = imageFallbackPortrait;
       }
-      const linkTo = item.media_type === "person" ? `/actors/${item.id}` : `/movies/${item.id}`;
+      const linkTo = item.media_type === "person" ? `/actors/${item.id}` : item.media_type === "movie" ? `/movies/${item.id}` : `/tv/${item.id}`;
       return {
         id: `${item.media_type}-${item.id}`,
         href: linkTo,

@@ -1,0 +1,45 @@
+@use "../../assets/styles/mixins" as *;
+
+.toggleWrap {
+  padding-top: 8px;
+  padding-bottom: 16px;
+}
+
+.typeToggle {
+  display: inline-flex;
+  gap: 8px;
+  padding: 6px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.08);
+  width: fit-content;
+}
+
+.toggleButton {
+  border: none;
+  background: transparent;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-black);
+  cursor: pointer;
+}
+
+.toggleButton[data-active="true"] {
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+@include respond-sm {
+  .toggleButton {
+    font-size: 13px;
+    padding: 6px 12px;
+  }
+}
+
+@include respond-xs {
+  .toggleButton {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+}

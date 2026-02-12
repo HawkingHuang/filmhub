@@ -16,6 +16,7 @@ export type FavoritePayload = {
   title: string;
   poster_path: string | null;
   backdrop_path: string | null;
+  media_type: "movie" | "tv";
 };
 
 export type FavoriteRow = FavoritePayload & {
@@ -24,7 +25,7 @@ export type FavoriteRow = FavoritePayload & {
 
 export type RecentMovie = FavoritePayload;
 
-export type MovieRecommendation = {
+export type Recommendation = {
   id: number;
   title: string;
   poster_path: string | null;

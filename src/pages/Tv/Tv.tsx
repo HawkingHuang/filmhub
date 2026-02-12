@@ -3,11 +3,11 @@ import { useParams, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import * as Toast from "@radix-ui/react-toast";
 import { BACKDROP_BASE_URL, POSTER_BASE_URL, PROFILE_BASE_URL } from "../../lib/api";
-import { formatRuntime, writeInRecentViewToLocalStorage } from "../../utils/commonUtils";
+import { writeInRecentViewToLocalStorage } from "../../utils/commonUtils";
 import type { RecentMovie } from "../../types/movieTypes";
 import type { RootState } from "../../store";
 import type { ToastPayload } from "../../types/toastTypes";
-import styles from "./Movie.module.scss";
+import styles from "../Movie/Movie.module.scss";
 import { HeartIcon, Cross1Icon, CrossCircledIcon, OpenInNewWindowIcon } from "@radix-ui/react-icons";
 import starIcon from "../../assets/images/star.svg";
 import imageFallbackPortrait from "../../assets/images/image_fallback_portrait.png";
@@ -16,7 +16,7 @@ import FullPageSpinner from "../../components/FullPageSpinner/FullPageSpinner";
 import * as Dialog from "@radix-ui/react-dialog";
 import { useIsClamped } from "../../hooks/useIsClamped";
 import { useCredits } from "../../hooks/useCredits";
-import { useMovieDetail } from "../../hooks/useMovieDetail";
+import { useTvDetail } from "../../hooks/useTvDetail";
 import { useRecommendations } from "../../hooks/useRecommendations";
 import { useVideos } from "../../hooks/useVideos";
 import { useCheckIsFavorited } from "../../hooks/useCheckIsFavorited";
@@ -24,32 +24,27 @@ import { useToggleFavorite } from "../../hooks/useToggleFavorite";
 import Trailer from "../../components/Trailer/Trailer";
 import Recommendations from "../../components/Recommendations/Recommendations";
 
-function Movie() {
-  // Routing + auth context
+function Tv() {
   const { id } = useParams();
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
 
-  // Local UI state
   const [toastOpen, setToastOpen] = useState(false);
   const [toastContent, setToastContent] = useState<ToastPayload | null>(null);
   const [isOverviewOpen, setIsOverviewOpen] = useState(false);
   const [showLandscapePoster, setShowLandscapePoster] = useState(false);
   const topBlockRef = useRef<HTMLElement | null>(null);
 
-  // Derived identifiers
-  const movieId = useMemo(() => {
+  const tvId = useMemo(() => {
     const parsed = Number(id);
     return Number.isFinite(parsed) ? parsed : null;
   }, [id]);
 
-  // Data fetching
-  const { data, isLoading, isError } = useMovieDetail(id);
-  const { data: creditsData, isError: isCreditsError } = useCredits(id);
-  const { data: videosData } = useVideos(id);
-  const { data: recommendationsData } = useRecommendations(id);
-  const { data: isFavorited } = useCheckIsFavorited(movieId, isAuthenticated);
+  const { data, isLoading, isError } = useTvDetail(id);
+  const { data: creditsData, isError: isCreditsError } = useCredits(id, "tv");
+  const { data: videosData } = useVideos(id, "tv");
+  const { data: recommendationsData } = useRecommendations(id, "tv");
+  const { data: isFavorited } = useCheckIsFavorited(tvId, isAuthenticated);
 
-  // Derived UI helpers
   const { ref: overviewRef, isClamped } = useIsClamped(data?.overview ?? "");
   const posterUrl = useMemo(() => {
     if (!data?.poster_path) return imageFallbackPortrait;
@@ -61,21 +56,28 @@ function Movie() {
     return `${BACKDROP_BASE_URL}${data.backdrop_path}`;
   }, [data]);
 
-  // Add/remove favorite mutation
-  const toggleFavoriteMutation = useToggleFavorite(movieId, data, "movie", Boolean(isFavorited), {
-    onToast: (payload) => {
-      setToastContent(payload);
-      setToastOpen(true);
+  const toggleFavoriteMutation = useToggleFavorite(
+    tvId,
+    data
+      ? {
+          title: data.name,
+          poster_path: data.poster_path ?? null,
+          backdrop_path: data.backdrop_path ?? null,
+        }
+      : undefined,
+    "tv",
+    Boolean(isFavorited),
+    {
+      onToast: (payload) => {
+        setToastContent(payload);
+        setToastOpen(true);
+      },
     },
-  });
+  );
 
   const recommendations = useMemo(() => recommendationsData?.results ?? [], [recommendationsData]);
   const castMembers = useMemo(() => creditsData?.cast?.slice(0, 8) ?? [], [creditsData]);
-  const directorName = useMemo(() => {
-    const crew = creditsData?.crew ?? [];
-    const director = crew.find((c) => (c.job ?? "").toLowerCase() === "director");
-    return director?.name ?? "—";
-  }, [creditsData]);
+  const creators = useMemo(() => data?.created_by ?? [], [data]);
   const trailer = useMemo(() => {
     const videos = videosData?.results ?? [];
     const ytTrailers = videos.filter((v) => v.site === "YouTube" && v.type === "Trailer");
@@ -83,23 +85,26 @@ function Movie() {
     return official ?? ytTrailers[0] ?? null;
   }, [videosData]);
   const trailerUrl = useMemo(() => (trailer ? `https://www.youtube.com/embed/${trailer.key}` : null), [trailer]);
+  const years = useMemo(() => {
+    const firstYear = data?.first_air_date?.slice(0, 4) ?? "—";
+    const lastYear = data?.last_air_date?.slice(0, 4) ?? "—";
+    return `${firstYear} - ${lastYear}`;
+  }, [data?.first_air_date, data?.last_air_date]);
 
-  // Automatically log recent view
   useEffect(() => {
-    if (!data || !movieId) return;
+    if (!data || !tvId) return;
 
     const payload: RecentMovie = {
-      movie_id: movieId,
-      title: data.title,
+      movie_id: tvId,
+      title: data.name,
       poster_path: data.poster_path ?? null,
       backdrop_path: data.backdrop_path ?? null,
-      media_type: "movie",
+      media_type: "tv",
     };
 
     writeInRecentViewToLocalStorage(payload);
-  }, [data, movieId]);
+  }, [data, tvId]);
 
-  // Resize observer for landscape poster
   useEffect(() => {
     if (isLoading) return;
     const el = topBlockRef.current;
@@ -124,7 +129,7 @@ function Movie() {
   if (isError || !data) {
     return (
       <div className="container">
-        <div className={styles.state}>Unable to load movie details.</div>
+        <div className={styles.state}>Unable to load tv details.</div>
       </div>
     );
   }
@@ -137,7 +142,7 @@ function Movie() {
             <img
               className={styles.posterLandscape}
               src={posterUrlLandscape}
-              alt={`${data.title} backdrop`}
+              alt={`${data.name} backdrop`}
               onError={(e) => {
                 e.currentTarget.src = imageFallbackLandscape;
               }}
@@ -146,7 +151,7 @@ function Movie() {
             <img
               className={styles.poster}
               src={posterUrl}
-              alt={data.title}
+              alt={data.name}
               onError={(e) => {
                 e.currentTarget.src = imageFallbackPortrait;
               }}
@@ -181,10 +186,10 @@ function Movie() {
         <div className={styles.info}>
           <div className={styles.infoHeader}>
             <div className={styles.titleBlock}>
-              <h1 className={styles.title}>{data.title}</h1>
+              <h1 className={styles.title}>{data.name}</h1>
               <div className={styles.genres}>
                 {data.genres?.map((genre) => (
-                  <Link key={genre.id} className={styles.genreTag} to={`/genres/${genre.id}`}>
+                  <Link key={genre.id} className={styles.genreTag} to={`/genres/${genre.id}?page=1&type=tv`}>
                     {genre.name}
                   </Link>
                 ))}
@@ -203,9 +208,9 @@ function Movie() {
                 </p>
                 <Dialog.Portal>
                   <Dialog.Overlay className={styles.dialogOverlay} />
-                  <Dialog.Content className={styles.dialogContent} aria-label={`${data.title} overview`}>
+                  <Dialog.Content className={styles.dialogContent} aria-label={`${data.name} overview`}>
                     <div className={styles.dialogHeader}>
-                      <Dialog.Title>{data.title} — Overview</Dialog.Title>
+                      <Dialog.Title>{data.name} — Overview</Dialog.Title>
                       <Dialog.Close asChild>
                         <button className={styles.dialogClose}>
                           <CrossCircledIcon />
@@ -219,16 +224,20 @@ function Movie() {
             </div>
             <div className={styles.meta}>
               <div className={styles.metaItem}>
-                <span className={styles.metaLabel}>Release Date</span>
-                <span className={styles.metaValue}>{data.release_date || "—"}</span>
+                <span className={styles.metaLabel}>Years</span>
+                <span className={styles.metaValue}>{years}</span>
               </div>
               <div className={styles.metaItem}>
-                <span className={styles.metaLabel}>Runtime</span>
-                <span className={styles.metaValue}>{formatRuntime(data.runtime)}</span>
+                <span className={styles.metaLabel}>Created By</span>
+                {creators.length > 0 ? <span className={styles.metaValue}>{creators.map((c) => c.name).join(", ")}</span> : <span className={styles.metaValue}>—</span>}
               </div>
               <div className={styles.metaItem}>
-                <span className={styles.metaLabel}>Director</span>
-                <span className={styles.metaValue}>{directorName}</span>
+                <span className={styles.metaLabel}>Seasons</span>
+                <span className={styles.metaValue}>{data.number_of_seasons}</span>
+              </div>
+              <div className={styles.metaItem}>
+                <span className={styles.metaLabel}>Episodes</span>
+                <span className={styles.metaValue}>{data.number_of_episodes}</span>
               </div>
               <div className={styles.metaItem}>
                 <span className={styles.metaLabel}>IMDB Rating</span>
@@ -268,9 +277,11 @@ function Movie() {
         </div>
       </section>
 
-      {trailerUrl && <Trailer trailerUrl={trailerUrl} title={data.title} trailerName={trailer?.name} />}
+      <section className={styles.bottomSection}>
+        {trailerUrl && <Trailer trailerUrl={trailerUrl} title={data.name} trailerName={trailer?.name} />}
+        {recommendations.length > 0 && <Recommendations recommendations={recommendations} title="Recommendations" basePath="/tv" />}
+      </section>
 
-      {recommendations.length > 0 && <Recommendations recommendations={recommendations} />}
       {toastContent && (
         <Toast.Root className="toastRoot" open={toastOpen} onOpenChange={setToastOpen}>
           <Toast.Title className="toastTitle">{toastContent.title}</Toast.Title>
@@ -281,4 +292,4 @@ function Movie() {
   );
 }
 
-export default Movie;
+export default Tv;

@@ -17,6 +17,7 @@ export type GenreRowProps = {
   title: string;
   endpoint: string;
   withGenres?: number;
+  mediaType: "movie" | "tv";
 };
 
 export type MovieGenre = {
