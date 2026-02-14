@@ -10,7 +10,7 @@ type FavoriteTarget = {
 
 export function useToggleFavorite(movieId: number | null, movie: FavoriteTarget | undefined, mediaType: "movie" | "tv", isFavorited: boolean, options: UseToggleFavoriteOptions) {
   const queryClient = useQueryClient();
-  console.log("movie:", movie);
+
   return useMutation({
     mutationFn: async () => {
       if (!movieId || !movie) {
