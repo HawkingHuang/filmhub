@@ -6,7 +6,7 @@ import { useSearchMulti } from "../../hooks/useSearchMulti";
 import { BACKDROP_BASE_URL, POSTER_BASE_URL, PROFILE_BASE_URL } from "../../lib/api";
 import type { SearchMultiResult } from "../../types/searchTypes";
 import styles from "./Search.module.scss";
-import imageFallbackPortrait from "../../assets/images/image_fallback_portrait.png";
+import imageFallbackPortrait from "../../assets/images/image_fallback_portrait.webp";
 import FullPageSpinner from "../../components/FullPageSpinner/FullPageSpinner";
 import ResultsGrid, { type ResultsGridItem } from "../../components/ResultsGrid";
 import gridStyles from "../../components/ResultsGrid/ResultsGrid.module.scss";

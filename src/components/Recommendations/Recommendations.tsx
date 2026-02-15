@@ -1,6 +1,6 @@
 import { POSTER_BASE_URL } from "../../lib/api";
 import type { Recommendation } from "../../types/movieTypes";
-import imageFallbackPortrait from "../../assets/images/image_fallback_portrait.png";
+import imageFallbackPortrait from "../../assets/images/image_fallback_portrait.webp";
 import ResultsGrid, { type ResultsGridItem } from "../ResultsGrid";
 import styles from "./Recommendations.module.scss";
 

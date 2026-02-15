@@ -8,7 +8,7 @@ import { PAGE_SIZE } from "../../lib/constants";
 import ResponsivePagination from "react-responsive-pagination";
 import { POSTER_BASE_URL } from "../../lib/api";
 import type { RootState } from "../../store";
-import imageFallbackPortrait from "../../assets/images/image_fallback_portrait.png";
+import imageFallbackPortrait from "../../assets/images/image_fallback_portrait.webp";
 import styles from "./User.module.scss";
 import "react-responsive-pagination/themes/minimal.css";
 import FullPageSpinner from "../../components/FullPageSpinner/FullPageSpinner";

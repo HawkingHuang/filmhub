@@ -6,7 +6,7 @@ import "react-responsive-pagination/themes/minimal.css";
 import { POSTER_BASE_URL } from "../../lib/api";
 import type { MovieGenre, TmdbMovie } from "../../types/genreTypes";
 import styles from "./Genre.module.scss";
-import imageFallbackPortrait from "../../assets/images/image_fallback_portrait.png";
+import imageFallbackPortrait from "../../assets/images/image_fallback_portrait.webp";
 import { Select } from "@radix-ui/themes";
 import * as Toast from "@radix-ui/react-toast";
 import FullPageSpinner from "../../components/FullPageSpinner/FullPageSpinner";

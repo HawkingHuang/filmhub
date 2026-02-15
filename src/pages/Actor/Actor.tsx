@@ -11,7 +11,7 @@ import ResultsGrid, { type ResultsGridItem } from "../../components/ResultsGrid"
 import { useIsClamped } from "../../hooks/useIsClamped";
 import { useActorDetail } from "../../hooks/useActorDetail";
 import { useActorCredits } from "../../hooks/useActorCredits";
-import imageFallbackPortrait from "../../assets/images/image_fallback_portrait.png";
+import imageFallbackPortrait from "../../assets/images/image_fallback_portrait.webp";
 
 function Actor() {
   const { id } = useParams();

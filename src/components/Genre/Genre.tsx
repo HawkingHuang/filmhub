@@ -12,7 +12,7 @@ import { Skeleton } from "@radix-ui/themes";
 import type { GenreRowProps } from "../../types/genreTypes";
 import { BACKDROP_BASE_URL } from "../../lib/api";
 import styles from "./Genre.module.scss";
-import imageFallbackLandscape from "../../assets/images/image_fallback_landscape.png";
+import imageFallbackLandscape from "../../assets/images/image_fallback_landscape.webp";
 import { useTmdbList } from "../../hooks/useTmdbList";
 
 function GenreRow({ title, endpoint, withGenres, mediaType }: GenreRowProps) {
