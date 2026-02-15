@@ -1,8 +1,9 @@
 @use "../../assets/styles/mixins" as *;
 
 .toggleWrap {
+  display: flex;
+  justify-content: center;
   padding-top: 8px;
-  padding-bottom: 16px;
 }
 
 .typeToggle {

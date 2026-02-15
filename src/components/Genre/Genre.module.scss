@@ -27,7 +27,7 @@
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        font-size: 24px;
+        font-size: 20px;
         font-weight: 700;
         color: var(--color-black);
         text-decoration: none;
@@ -121,8 +121,27 @@
         }
 
         .cardTitle {
+          position: relative;
+          min-height: 1.3em;
           font-size: 18px;
           font-weight: 600;
+
+          .cardTitleText {
+            display: block;
+            transition: opacity 240ms ease;
+          }
+
+          .skeletonText {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            height: 1em;
+            transform: translateY(-50%);
+            border-radius: 6px;
+            pointer-events: none;
+            transition: opacity 240ms ease;
+            width: 100%;
+          }
         }
       }
     }
@@ -134,12 +153,6 @@
 
     .row {
       gap: 18px;
-
-      .rowHeader {
-        .title {
-          font-size: 26px;
-        }
-      }
     }
   }
 
@@ -149,7 +162,7 @@
     .row {
       .rowHeader {
         .title {
-          font-size: 22px;
+          font-size: 18px;
         }
 
         .nav {
@@ -182,7 +195,7 @@
         gap: 12px;
 
         .title {
-          font-size: 20px;
+          font-size: 16px;
         }
 
         .nav {
@@ -214,7 +227,7 @@
         gap: 10px;
 
         .title {
-          font-size: 18px;
+          font-size: 14px;
         }
 
         .nav {

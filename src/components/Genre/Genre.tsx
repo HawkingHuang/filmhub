@@ -192,7 +192,22 @@ function GenreRow({ title, endpoint, withGenres, mediaType }: GenreRowProps) {
               >
                 <Skeleton className={styles.skeleton} />
               </div>
-              <div className={styles.cardTitle}>{titleText || "\u00A0"}</div>
+              <div className={styles.cardTitle}>
+                <span
+                  className={styles.cardTitleText}
+                  style={{
+                    opacity: showSkeleton || !movie ? 0 : 1,
+                  }}
+                >
+                  {titleText || "\u00A0"}
+                </span>
+                <Skeleton
+                  className={styles.skeletonText}
+                  style={{
+                    opacity: showSkeleton || !movie ? 1 : 0,
+                  }}
+                />
+              </div>
             </div>
           );
 
