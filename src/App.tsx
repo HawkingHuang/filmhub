@@ -1,17 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import ProtectedRoute from "./components/routeGuards/ProtectedRoute";
-import PublicOnlyRoute from "./components/routeGuards/PublicOnlyRoute";
-import Actor from "./pages/Actor/Actor";
-import Genre from "./pages/Genre/Genre";
-import Home from "./pages/Home/Home";
-import Login from "./pages/Login/Login";
-import Movie from "./pages/Movie/Movie";
-import Tv from "./pages/Tv/Tv";
-import Search from "./pages/Search/Search";
-import Signup from "./pages/Signup/Signup";
-import User from "./pages/User/User";
 import supabase from "./services/supabase";
 import { clearSession, setSession } from "./store/authSlice";
 import type { AppDispatch } from "./store";
@@ -23,51 +12,39 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <Home />,
+        lazy: () => import("./pages/Home/route"),
       },
       {
         path: "/search",
-        element: <Search />,
+        lazy: () => import("./pages/Search/route"),
       },
       {
         path: "/genres/:id",
-        element: <Genre />,
+        lazy: () => import("./pages/Genre/route"),
       },
       {
         path: "/login",
-        element: (
-          <PublicOnlyRoute>
-            <Login />
-          </PublicOnlyRoute>
-        ),
+        lazy: () => import("./pages/Login/route"),
       },
       {
         path: "/signup",
-        element: (
-          <PublicOnlyRoute>
-            <Signup />
-          </PublicOnlyRoute>
-        ),
+        lazy: () => import("./pages/Signup/route"),
       },
       {
         path: "/movies/:id",
-        element: <Movie />,
+        lazy: () => import("./pages/Movie/route"),
       },
       {
         path: "/tv/:id",
-        element: <Tv />,
+        lazy: () => import("./pages/Tv/route"),
       },
       {
         path: "/actors/:id",
-        element: <Actor />,
+        lazy: () => import("./pages/Actor/route"),
       },
       {
         path: "/user",
-        element: (
-          <ProtectedRoute>
-            <User />
-          </ProtectedRoute>
-        ),
+        lazy: () => import("./pages/User/route"),
       },
     ],
   },
