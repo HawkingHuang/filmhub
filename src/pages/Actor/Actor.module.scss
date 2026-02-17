@@ -196,6 +196,43 @@
     flex-wrap: wrap;
   }
 
+  .creditsModeToggle {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 999px;
+    padding: 2px;
+    height: 32px;
+    box-sizing: border-box;
+  }
+
+  .modeButton {
+    border: none;
+    background: transparent;
+    color: rgba(0, 0, 0, 0.75);
+    border-radius: 999px;
+    height: 26px;
+    padding: 0 10px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease;
+  }
+
+  .modeButtonActive {
+    background: rgba(0, 0, 0, 0.12);
+    color: var(--color-black);
+  }
+
+  .creditsSelectGroup {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
   .creditsTitle {
     font-size: 24px;
     font-weight: 700;
@@ -229,11 +266,12 @@
   .creditsSelectTrigger {
     border: 1px solid rgba(0, 0, 0, 0.15);
     border-radius: 999px;
-    padding: 8px 12px;
-    font-size: 14px;
+    padding: 0 12px;
+    font-size: 13px;
     background: rgba(255, 255, 255, 0.8);
     color: var(--color-black);
     min-width: 120px;
+    height: 32px;
   }
 
   .creditsSelectContent {

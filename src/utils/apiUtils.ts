@@ -148,7 +148,7 @@ export const fetchActorDetail = async (personId: string) => {
 };
 
 export const fetchActorCredits = async (personId: string) => {
-  const response = await fetch(buildTmdbProxyUrl(`/person/${personId}/movie_credits`));
+  const response = await fetch(buildTmdbProxyUrl(`/person/${personId}/combined_credits`));
   if (!response.ok) {
     throw new Error("Failed to fetch actor credits");
   }

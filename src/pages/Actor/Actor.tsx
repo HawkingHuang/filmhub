@@ -13,6 +13,8 @@ import { useActorDetail } from "../../hooks/useActorDetail";
 import { useActorCredits } from "../../hooks/useActorCredits";
 import imageFallbackPortrait from "../../assets/images/image_fallback_portrait.webp";
 
+type CreditMode = "movie" | "tv";
+
 function Actor() {
   const { id } = useParams();
 
@@ -23,57 +25,68 @@ function Actor() {
   // Local UI state
   const [creditQuery, setCreditQuery] = useState("");
   const [creditYear, setCreditYear] = useState("all");
+  const [creditMode, setCreditMode] = useState<CreditMode>("movie");
   const [isBioOpen, setIsBioOpen] = useState(false);
 
   // Derived UI helpers
   const { ref: biographyRef, isClamped } = useIsClamped(actor?.biography ?? "");
+  const getCreditTitle = (credit: ActorCredit) => (credit.media_type === "tv" ? credit.name : credit.title) ?? "Untitled";
+  const getCreditDate = (credit: ActorCredit) => (credit.media_type === "tv" ? credit.first_air_date : credit.release_date) ?? "";
+
   const credits = useMemo(() => creditsData?.cast ?? [], [creditsData]);
+  const movieCredits = useMemo(() => credits.filter((credit) => credit.media_type === "movie"), [credits]);
+  const tvCredits = useMemo(() => credits.filter((credit) => credit.media_type === "tv"), [credits]);
+  const selectedCredits = useMemo(() => (creditMode === "movie" ? movieCredits : tvCredits), [creditMode, movieCredits, tvCredits]);
+
+  const yearAriaLabel = creditMode === "movie" ? "Filter by year" : "Filter by first aired year";
+
   const creditYears = useMemo(() => {
     const years = new Set<string>();
-    credits.forEach((credit) => {
-      const year = credit.release_date?.slice(0, 4);
+    selectedCredits.forEach((credit) => {
+      const year = getCreditDate(credit).slice(0, 4);
       if (year) {
         years.add(year);
       }
     });
     return Array.from(years).sort((a, b) => b.localeCompare(a));
-  }, [credits]);
+  }, [selectedCredits]);
 
-  // sort credits by release_date descending (latest first). Empty dates sort last.
+  // sort credits by release/first-air date descending (latest first). Empty dates sort last.
   const sortedCredits = useMemo(() => {
-    return [...credits].sort((a, b) => {
-      const da = a.release_date ?? "";
-      const db = b.release_date ?? "";
+    return [...selectedCredits].sort((a, b) => {
+      const da = getCreditDate(a);
+      const db = getCreditDate(b);
       // ISO date strings compare lexicographically
       if (da === db) return 0;
       if (!db) return -1;
       if (!da) return 1;
       return db.localeCompare(da);
     });
-  }, [credits]);
+  }, [selectedCredits]);
 
   const filteredCredits = useMemo(() => {
     const normalizedQuery = creditQuery.trim().toLowerCase();
-    const yearFiltered = creditYear === "all" ? sortedCredits : sortedCredits.filter((credit) => credit.release_date?.startsWith(creditYear));
+    const yearFiltered = creditYear === "all" ? sortedCredits : sortedCredits.filter((credit) => getCreditDate(credit).startsWith(creditYear));
 
     if (!normalizedQuery) {
       return yearFiltered;
     }
     return yearFiltered.filter((credit) => {
-      const title = credit.title?.toLowerCase() ?? "";
+      const title = getCreditTitle(credit).toLowerCase();
       const character = credit.character?.toLowerCase() ?? "";
       return title.includes(normalizedQuery) || character.includes(normalizedQuery);
     });
   }, [creditQuery, creditYear, sortedCredits]);
 
   const creditItems = useMemo<ResultsGridItem[]>(() => {
-    return filteredCredits.map((credit: ActorCredit) => {
+    return filteredCredits.map((credit: ActorCredit, index) => {
       const posterPath = credit.poster_path || credit.backdrop_path || null;
       const posterUrl = posterPath ? `${POSTER_BASE_URL}${posterPath}` : imageFallbackPortrait;
-      const titleText = credit.title ?? "Untitled";
+      const titleText = getCreditTitle(credit);
+      const itemKey = `${credit.media_type}-${credit.id}-${credit.credit_id ?? index}`;
       return {
-        id: credit.id,
-        href: `/movies/${credit.id}`,
+        id: itemKey,
+        href: credit.media_type === "tv" ? `/tv/${credit.id}` : `/movies/${credit.id}`,
         title: titleText,
         imageSrc: posterUrl,
         alt: titleText,
@@ -162,17 +175,43 @@ function Actor() {
           <div className={styles.creditsHeader}>
             <h2 className={styles.creditsTitle}>Credits</h2>
             <div className={styles.creditsControls}>
-              <Select.Root value={creditYear} onValueChange={setCreditYear}>
-                <Select.Trigger className={styles.creditsSelectTrigger} aria-label="Filter by year" />
-                <Select.Content className={styles.creditsSelectContent}>
-                  <Select.Item value="all">All years</Select.Item>
-                  {creditYears.map((year) => (
-                    <Select.Item key={year} value={year}>
-                      {year}
-                    </Select.Item>
-                  ))}
-                </Select.Content>
-              </Select.Root>
+              <div className={styles.creditsModeToggle} role="group" aria-label="Credit type">
+                <button
+                  type="button"
+                  className={`${styles.modeButton} ${creditMode === "movie" ? styles.modeButtonActive : ""}`}
+                  aria-pressed={creditMode === "movie"}
+                  onClick={() => {
+                    setCreditMode("movie");
+                    setCreditYear("all");
+                  }}
+                >
+                  Movies
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.modeButton} ${creditMode === "tv" ? styles.modeButtonActive : ""}`}
+                  aria-pressed={creditMode === "tv"}
+                  onClick={() => {
+                    setCreditMode("tv");
+                    setCreditYear("all");
+                  }}
+                >
+                  TV
+                </button>
+              </div>
+              <div className={styles.creditsSelectGroup}>
+                <Select.Root value={creditYear} onValueChange={setCreditYear}>
+                  <Select.Trigger className={styles.creditsSelectTrigger} aria-label={yearAriaLabel} />
+                  <Select.Content className={styles.creditsSelectContent}>
+                    <Select.Item value="all">All years</Select.Item>
+                    {creditYears.map((year) => (
+                      <Select.Item key={year} value={year}>
+                        {year}
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select.Root>
+              </div>
               <div className={styles.creditsFilterWrap}>
                 <input
                   className={styles.creditsFilter}

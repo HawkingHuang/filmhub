@@ -8,12 +8,16 @@ export type ActorDetail = {
 };
 
 export type ActorCredit = {
+  credit_id?: string;
   id: number;
-  title: string;
+  media_type: "movie" | "tv";
+  title?: string | null;
+  name?: string | null;
   poster_path: string | null;
   backdrop_path?: string | null;
   character?: string | null;
   release_date?: string | null;
+  first_air_date?: string | null;
 };
 
 export type ActorCreditsResponse = {
