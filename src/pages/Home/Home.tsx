@@ -26,11 +26,25 @@ function Home() {
     <>
       <div className="container">
         <div className={styles.toggleWrap}>
-          <div className={styles.typeToggle} role="tablist" aria-label="Media type">
-            <button type="button" className={styles.toggleButton} data-active={type === "movie"} onClick={() => handleTypeChange("movie")}>
+          <div className={styles.typeToggle} role="group" aria-label="Media type">
+            <button
+              type="button"
+              className={styles.toggleButton}
+              data-active={type === "movie"}
+              aria-pressed={type === "movie"}
+              aria-label="Show movies"
+              onClick={() => handleTypeChange("movie")}
+            >
               Movies
             </button>
-            <button type="button" className={styles.toggleButton} data-active={type === "tv"} onClick={() => handleTypeChange("tv")}>
+            <button
+              type="button"
+              className={styles.toggleButton}
+              data-active={type === "tv"}
+              aria-pressed={type === "tv"}
+              aria-label="Show TV series"
+              onClick={() => handleTypeChange("tv")}
+            >
               TV Series
             </button>
           </div>
