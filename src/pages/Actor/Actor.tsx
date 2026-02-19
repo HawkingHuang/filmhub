@@ -3,12 +3,11 @@ import { useParams } from "react-router-dom";
 import { POSTER_BASE_URL, PROFILE_BASE_URL } from "../../lib/api";
 import type { ActorCredit } from "../../types/actorTypes";
 import styles from "./Actor.module.scss";
-import { CrossCircledIcon, MagnifyingGlassIcon, OpenInNewWindowIcon } from "@radix-ui/react-icons";
+import { CrossCircledIcon, MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import { Select } from "@radix-ui/themes";
-import * as Dialog from "@radix-ui/react-dialog";
 import FullPageSpinner from "../../components/FullPageSpinner/FullPageSpinner";
+import ActorBioSection from "../../components/ActorBioSection/ActorBioSection";
 import ResultsGrid, { type ResultsGridItem } from "../../components/ResultsGrid";
-import { useIsClamped } from "../../hooks/useIsClamped";
 import { useActorDetail } from "../../hooks/useActorDetail";
 import { useActorCredits } from "../../hooks/useActorCredits";
 import imageFallbackPortrait from "../../assets/images/image_fallback_portrait.webp";
@@ -26,10 +25,8 @@ function Actor() {
   const [creditQuery, setCreditQuery] = useState("");
   const [creditYear, setCreditYear] = useState("all");
   const [creditMode, setCreditMode] = useState<CreditMode>("movie");
-  const [isBioOpen, setIsBioOpen] = useState(false);
 
   // Derived UI helpers
-  const { ref: biographyRef, isClamped } = useIsClamped(actor?.biography ?? "");
   const getCreditTitle = (credit: ActorCredit) => (credit.media_type === "tv" ? credit.name : credit.title) ?? "Untitled";
   const getCreditDate = (credit: ActorCredit) => (credit.media_type === "tv" ? credit.first_air_date : credit.release_date) ?? "";
 
@@ -122,50 +119,7 @@ function Actor() {
             }}
           />
         </div>
-        <div className={styles.bioSection}>
-          <h1 className={styles.actorName}>{actor.name}</h1>
-          <Dialog.Root open={isBioOpen} onOpenChange={setIsBioOpen}>
-            <div className={styles.bioInfoRow}>
-              <div className={styles.biographyWrap}>
-                <p className={styles.biography} ref={biographyRef}>
-                  {actor.biography || "No biography available."}
-                  {actor.biography && isClamped ? (
-                    <Dialog.Trigger asChild>
-                      <button className={styles.readMore}>
-                        <OpenInNewWindowIcon />
-                        More
-                      </button>
-                    </Dialog.Trigger>
-                  ) : null}
-                </p>
-              </div>
-              <div className={styles.infoCard}>
-                <div className={styles.infoRow}>
-                  <span className={styles.infoLabel}>Birthday</span>
-                  <span className={styles.infoValue}>{actor.birthday || "—"}</span>
-                </div>
-                <div className={styles.infoRow}>
-                  <span className={styles.infoLabel}>Place of Birth</span>
-                  <span className={styles.infoValue}>{actor.place_of_birth || "—"}</span>
-                </div>
-              </div>
-            </div>
-            <Dialog.Portal>
-              <Dialog.Overlay className={styles.dialogOverlay} />
-              <Dialog.Content className={styles.dialogContent} aria-label={`${actor.name} biography`}>
-                <div className={styles.dialogHeader}>
-                  <Dialog.Title>{actor.name} — Biography</Dialog.Title>
-                  <Dialog.Close asChild>
-                    <button className={styles.dialogClose}>
-                      <CrossCircledIcon />
-                    </button>
-                  </Dialog.Close>
-                </div>
-                <div className={styles.dialogBody}>{actor.biography}</div>
-              </Dialog.Content>
-            </Dialog.Portal>
-          </Dialog.Root>
-        </div>
+        <ActorBioSection actor={actor} />
       </section>
 
       {isCreditsError ? (

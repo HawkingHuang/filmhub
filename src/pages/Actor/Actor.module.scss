@@ -42,95 +42,6 @@
     }
   }
 
-  .bioSection {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    justify-content: space-between;
-
-    .actorName {
-      font-size: 32px;
-      font-weight: 700;
-      color: var(--color-black);
-    }
-
-    .bioInfoRow {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 24px;
-      .biographyWrap {
-        grid-column: span 4;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-
-        .biography {
-          font-size: 16px;
-          line-height: 1.6;
-          color: var(--color-black);
-          background: rgba(255, 255, 255, 0.6);
-          border-radius: 10px;
-          padding: 12px 80px 4px 16px;
-          position: relative;
-          margin: 0;
-          display: -webkit-box;
-          -webkit-line-clamp: 6;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-          box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
-
-          .readMore {
-            position: absolute;
-            bottom: 5px;
-            right: 5px;
-            background: #ffd43b;
-            border: none;
-            color: var(--color-black);
-            font-weight: 600;
-            cursor: pointer;
-            padding: 6px 8px;
-            border-radius: 10px;
-            z-index: 2;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-          }
-        }
-      }
-
-      .infoCard {
-        grid-column: span 1;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        background: rgba(255, 255, 255, 0.6);
-        border-radius: 12px;
-        padding: 12px 16px;
-        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
-
-        .infoRow {
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-
-          .infoLabel {
-            font-size: 12px;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            color: rgba(0, 0, 0, 0.6);
-            font-weight: 600;
-          }
-
-          .infoValue {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--color-black);
-          }
-        }
-      }
-    }
-  }
-
   @include respond-sm {
     grid-template-columns: 1fr;
     gap: 20px;
@@ -142,39 +53,11 @@
         max-width: 160px;
       }
     }
-
-    .bioSection {
-      .bioInfoRow {
-        grid-template-columns: 1fr;
-        gap: 16px;
-
-        .biographyWrap,
-        .infoCard {
-          grid-column: 1 / -1;
-        }
-      }
-    }
   }
 
   @include respond-xs {
     grid-template-columns: 1fr;
     gap: 16px;
-
-    .bioSection {
-      .actorName {
-        font-size: 26px;
-      }
-
-      .bioInfoRow {
-        grid-template-columns: 1fr;
-        gap: 12px;
-
-        .biographyWrap,
-        .infoCard {
-          grid-column: 1 / -1;
-        }
-      }
-    }
   }
 }
 
@@ -328,82 +211,5 @@
 
   @include respond-xs {
     padding-bottom: 48px;
-  }
-}
-
-/* dialog styles */
-.dialogOverlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 60;
-  padding: 24px;
-}
-
-.dialogContent {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: min(900px, calc(100% - 48px));
-  max-height: 85vh;
-  background: var(--color-white);
-  border-radius: 12px;
-  padding: 20px;
-  overflow: auto;
-  z-index: 61;
-
-  &[data-state="open"] {
-    animation: contentShow 250ms cubic-bezier(0.2, 0, 0, 1);
-  }
-
-  &[data-state="closed"] {
-    animation: contentHide 250ms cubic-bezier(0.2, 0, 0, 1);
-  }
-
-  .dialogHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 12px;
-
-    .dialogClose {
-      background: transparent;
-      border: none;
-      font-weight: 700;
-      cursor: pointer;
-    }
-  }
-
-  .dialogBody {
-    font-size: 16px;
-    line-height: 1.6;
-    color: var(--color-black);
-  }
-}
-
-@keyframes contentShow {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-  }
-}
-
-@keyframes contentHide {
-  from {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-  }
-  to {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0);
   }
 }
