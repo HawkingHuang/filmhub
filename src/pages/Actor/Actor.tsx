@@ -3,10 +3,9 @@ import { useParams } from "react-router-dom";
 import { POSTER_BASE_URL, PROFILE_BASE_URL } from "../../lib/api";
 import type { ActorCredit } from "../../types/actorTypes";
 import styles from "./Actor.module.scss";
-import { CrossCircledIcon, MagnifyingGlassIcon } from "@radix-ui/react-icons";
-import { Select } from "@radix-ui/themes";
 import FullPageSpinner from "../../components/FullPageSpinner/FullPageSpinner";
 import ActorBioSection from "../../components/ActorBioSection/ActorBioSection";
+import ActorCreditsHeader from "../../components/ActorCreditsHeader/ActorCreditsHeader";
 import ResultsGrid, { type ResultsGridItem } from "../../components/ResultsGrid";
 import { useActorDetail } from "../../hooks/useActorDetail";
 import { useActorCredits } from "../../hooks/useActorCredits";
@@ -126,65 +125,20 @@ function Actor() {
         <div className={styles.state}>Unable to load credits.</div>
       ) : (
         <section className={styles.creditsSection}>
-          <div className={styles.creditsHeader}>
-            <h2 className={styles.creditsTitle}>Credits</h2>
-            <div className={styles.creditsControls}>
-              <div className={styles.creditsModeToggle} role="group" aria-label="Credit type">
-                <button
-                  type="button"
-                  className={`${styles.modeButton} ${creditMode === "movie" ? styles.modeButtonActive : ""}`}
-                  aria-pressed={creditMode === "movie"}
-                  onClick={() => {
-                    setCreditMode("movie");
-                    setCreditYear("all");
-                  }}
-                >
-                  Movies
-                </button>
-                <button
-                  type="button"
-                  className={`${styles.modeButton} ${creditMode === "tv" ? styles.modeButtonActive : ""}`}
-                  aria-pressed={creditMode === "tv"}
-                  onClick={() => {
-                    setCreditMode("tv");
-                    setCreditYear("all");
-                  }}
-                >
-                  TV
-                </button>
-              </div>
-              <div className={styles.creditsSelectGroup}>
-                <Select.Root value={creditYear} onValueChange={setCreditYear}>
-                  <Select.Trigger className={styles.creditsSelectTrigger} aria-label={yearAriaLabel} />
-                  <Select.Content className={styles.creditsSelectContent}>
-                    <Select.Item value="all">All years</Select.Item>
-                    {creditYears.map((year) => (
-                      <Select.Item key={year} value={year}>
-                        {year}
-                      </Select.Item>
-                    ))}
-                  </Select.Content>
-                </Select.Root>
-              </div>
-              <div className={styles.creditsFilterWrap}>
-                <input
-                  className={styles.creditsFilter}
-                  type="search"
-                  placeholder="Enter title or characters..."
-                  value={creditQuery}
-                  onChange={(event) => setCreditQuery(event.target.value)}
-                  aria-label="Filter credits"
-                />
-                {creditQuery ? (
-                  <button type="button" className={styles.clearFilter} aria-label="Clear filter" onClick={() => setCreditQuery("")}>
-                    <CrossCircledIcon />
-                  </button>
-                ) : (
-                  <MagnifyingGlassIcon className={styles.searchIcon} />
-                )}
-              </div>
-            </div>
-          </div>
+          <ActorCreditsHeader
+            creditMode={creditMode}
+            creditYear={creditYear}
+            creditYears={creditYears}
+            creditQuery={creditQuery}
+            yearAriaLabel={yearAriaLabel}
+            onModeChange={(mode) => {
+              setCreditMode(mode);
+              setCreditYear("all");
+            }}
+            onYearChange={setCreditYear}
+            onQueryChange={setCreditQuery}
+            onClearQuery={() => setCreditQuery("")}
+          />
           {creditItems.length > 0 ? <ResultsGrid items={creditItems} /> : <div>No credits found.</div>}
         </section>
       )}
