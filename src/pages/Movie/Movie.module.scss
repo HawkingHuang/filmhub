@@ -138,6 +138,7 @@
         grid-column: 1 / 4;
         grid-row: 3;
         display: -webkit-box;
+        line-clamp: 6;
         -webkit-line-clamp: 6;
         -webkit-box-orient: vertical;
         overflow: hidden;
@@ -210,65 +211,6 @@
       box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
     }
 
-    .castList {
-      display: grid;
-      grid-template-columns: repeat(8, minmax(0, 1fr));
-      gap: 16px;
-      margin-top: 16px;
-
-      .castLink {
-        text-decoration: none;
-        color: inherit;
-        min-width: 0;
-
-        .castItem {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 6px;
-          width: 100%;
-          box-shadow: 0 2px 30px rgba(0, 0, 0, 0.2);
-          border-radius: 10px;
-          transition: box-shadow 300ms ease-in-out;
-
-          &:hover {
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
-          }
-
-          .castImage,
-          .castImageFallback {
-            width: 100%;
-            aspect-ratio: 2 / 3;
-            border-radius: 10px 10px 0 0;
-          }
-
-          .castImage {
-            object-fit: cover;
-          }
-
-          .castImageFallback {
-            background: rgba(0, 0, 0, 0.08);
-          }
-
-          .castName {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--color-black);
-            text-align: center;
-            @include text-ellipsis(90%);
-          }
-
-          .castCharacter {
-            font-size: 13px;
-            color: rgba(0, 0, 0, 0.6);
-            text-align: center;
-            margin-bottom: 2px;
-            @include text-ellipsis(90%);
-          }
-        }
-      }
-    }
-
     .state {
       margin-top: 20px;
     }
@@ -308,13 +250,6 @@
         max-width: 75%;
         height: 54px;
         font-size: 16px;
-      }
-    }
-
-    .info {
-      .castList {
-        grid-template-columns: repeat(4, 1fr);
-        gap: 20px;
       }
     }
   }
@@ -367,11 +302,6 @@
           }
         }
       }
-
-      .castList {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 24px;
-      }
     }
   }
 
@@ -420,11 +350,6 @@
             font-size: 13px;
           }
         }
-      }
-
-      .castList {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 24px;
       }
     }
   }

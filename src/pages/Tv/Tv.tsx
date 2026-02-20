@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import * as Toast from "@radix-ui/react-toast";
-import { BACKDROP_BASE_URL, POSTER_BASE_URL, PROFILE_BASE_URL } from "../../lib/api";
+import { BACKDROP_BASE_URL, POSTER_BASE_URL } from "../../lib/api";
 import { writeInRecentViewToLocalStorage } from "../../utils/commonUtils";
 import type { RecentMovie } from "../../types/movieTypes";
 import type { RootState } from "../../store";
@@ -21,6 +21,7 @@ import { useRecommendations } from "../../hooks/useRecommendations";
 import { useVideos } from "../../hooks/useVideos";
 import { useCheckIsFavorited } from "../../hooks/useCheckIsFavorited";
 import { useToggleFavorite } from "../../hooks/useToggleFavorite";
+import MediaCredits from "../../components/MediaCredits/MediaCredits";
 import Trailer from "../../components/Trailer/Trailer";
 import Recommendations from "../../components/Recommendations/Recommendations";
 
@@ -249,31 +250,7 @@ function Tv() {
             </div>
           </div>
 
-          {isCreditsError ? (
-            <div className={styles.state}>Unable to load credits.</div>
-          ) : (
-            <div className={styles.castList}>
-              {castMembers.map((member) => {
-                const profileUrl = member.profile_path ? `${PROFILE_BASE_URL}${member.profile_path}` : imageFallbackPortrait;
-                return (
-                  <Link className={styles.castLink} key={member.id} to={`/actors/${member.id}`}>
-                    <div className={styles.castItem}>
-                      <img
-                        className={styles.castImage}
-                        src={profileUrl}
-                        alt={member.name}
-                        onError={(e) => {
-                          e.currentTarget.src = imageFallbackPortrait;
-                        }}
-                      />
-                      <div className={styles.castName}>{member.name}</div>
-                      <div className={styles.castCharacter}>{member.character || "—"}</div>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
-          )}
+          {isCreditsError ? <div className={styles.state}>Unable to load credits.</div> : <MediaCredits castMembers={castMembers} />}
         </div>
       </section>
 
