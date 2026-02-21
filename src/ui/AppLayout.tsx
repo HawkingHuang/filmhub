@@ -30,7 +30,9 @@ function AppLayout() {
       <Background />
       <div style={{ position: "relative", zIndex: 2 }}>
         {location.pathname !== "/login" && location.pathname !== "/signup" && <Header />}
-        <Outlet />
+        <main id="main-content">
+          <Outlet />
+        </main>
         <ScrollToTop />
       </div>
       {toastContent && (

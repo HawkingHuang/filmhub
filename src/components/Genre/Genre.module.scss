@@ -29,15 +29,15 @@
         gap: 6px;
         font-size: 20px;
         font-weight: 700;
-        color: var(--color-black);
+        color: #1f2937;
         text-decoration: none;
-        padding: 6px 8px;
-        border-radius: 10px;
-        background: #ffd43b;
+        padding: 4px 6px;
+        border-radius: 4px;
+        background: #ffd166;
         cursor: pointer;
 
         &:hover {
-          background: #fcc419;
+          background: #fbbf24;
         }
       }
 
