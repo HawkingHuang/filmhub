@@ -7,7 +7,7 @@ import { writeInRecentViewToLocalStorage } from "../../utils/commonUtils";
 import type { RecentMovie } from "../../types/movieTypes";
 import type { RootState } from "../../store";
 import type { ToastPayload } from "../../types/toastTypes";
-import styles from "../Movie/Movie.module.scss";
+import styles from "../../assets/styles/MediaDetail.module.scss";
 import { HeartIcon, Cross1Icon, CrossCircledIcon, OpenInNewWindowIcon } from "@radix-ui/react-icons";
 import starIcon from "../../assets/images/star.svg";
 import imageFallbackPortrait from "../../assets/images/image_fallback_portrait.webp";
@@ -168,7 +168,7 @@ function Tv() {
             }}
           >
             {!isAuthenticated ? (
-              "Login to Favorite"
+              "Login to Add"
             ) : toggleFavoriteMutation.isPending ? (
               "Saving..."
             ) : isFavorited ? (

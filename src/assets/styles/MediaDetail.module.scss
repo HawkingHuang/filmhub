@@ -1,5 +1,5 @@
-@use "../../assets/styles/mixins" as *;
-@use "../../assets/styles/state.module" as *;
+@use "./mixins" as *;
+@use "./state.module" as *;
 
 .topBlock {
   display: grid;
