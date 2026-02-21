@@ -10,7 +10,7 @@ import { Link } from "react-router-dom";
 import { GENRES_BY_TYPE } from "../../lib/constants";
 import { Skeleton } from "@radix-ui/themes";
 import type { GenreRowProps } from "../../types/genreTypes";
-import { BACKDROP_BASE_URL } from "../../lib/api";
+import { POSTER_BASE_URL } from "../../lib/api";
 import styles from "./Genre.module.scss";
 import imageFallbackLandscape from "../../assets/images/image_fallback_landscape.webp";
 import { useTmdbList } from "../../hooks/useTmdbList";
@@ -35,7 +35,7 @@ function GenreRow({ title, endpoint, withGenres, mediaType }: GenreRowProps) {
     return movies
       .map((m) => m.backdrop_path ?? m.poster_path)
       .filter((p): p is string => Boolean(p))
-      .map((p) => `${BACKDROP_BASE_URL}${p}`);
+      .map((p) => `${POSTER_BASE_URL}${p}`);
   }, [movies]);
 
   useEffect(() => {
@@ -158,7 +158,7 @@ function GenreRow({ title, endpoint, withGenres, mediaType }: GenreRowProps) {
         {Array.from({ length: slideCount }).map((_, index) => {
           const movie = movies[index];
           const imagePath = movie ? (movie.backdrop_path ?? movie.poster_path) : null;
-          const imageUrl = imagePath ? `${BACKDROP_BASE_URL}${imagePath}` : imageFallbackLandscape;
+          const imageUrl = imagePath ? `${POSTER_BASE_URL}${imagePath}` : imageFallbackLandscape;
           const titleText = movie?.title ?? movie?.name ?? "";
 
           const cardContent = (
