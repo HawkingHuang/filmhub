@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import * as Toast from "@radix-ui/react-toast";
-import { BACKDROP_BASE_URL, POSTER_BASE_URL } from "../../lib/api";
+import { BACKDROP_IMAGE_SIZES, POSTER_IMAGE_SIZES, BACKDROP_IMAGE_SIZES_ATTR, POSTER_IMAGE_SIZES_ATTR, buildTmdbImageSrcSet, buildTmdbImageUrl } from "../../lib/api";
 import { writeInRecentViewToLocalStorage } from "../../utils/commonUtils";
 import type { RecentMovie } from "../../types/movieTypes";
 import type { RootState } from "../../store";
@@ -47,15 +47,17 @@ function Tv() {
   const { data: isFavorited } = useCheckIsFavorited(tvId, isAuthenticated);
 
   const { ref: overviewRef, isClamped } = useIsClamped(data?.overview ?? "");
-  const posterUrl = useMemo(() => {
-    if (!data?.poster_path) return imageFallbackPortrait;
-    return `${POSTER_BASE_URL}${data.poster_path}`;
-  }, [data?.poster_path]);
+  const posterSrc = data?.poster_path ? buildTmdbImageUrl(data.poster_path, POSTER_IMAGE_SIZES.lg) : imageFallbackPortrait;
 
-  const posterUrlLandscape = useMemo(() => {
-    if (!data?.backdrop_path) return imageFallbackLandscape;
-    return `${BACKDROP_BASE_URL}${data.backdrop_path}`;
-  }, [data]);
+  const posterSrcSet = data?.poster_path ? buildTmdbImageSrcSet(data.poster_path, POSTER_IMAGE_SIZES) : null;
+
+  const posterSrcSetMobile = data?.poster_path ? buildTmdbImageSrcSet(data.poster_path, { sm: POSTER_IMAGE_SIZES.sm }) : null;
+
+  const posterLandscapeSrc = data?.backdrop_path ? buildTmdbImageUrl(data.backdrop_path, BACKDROP_IMAGE_SIZES.md) : imageFallbackLandscape;
+
+  const posterLandscapeSrcSet = data?.backdrop_path ? buildTmdbImageSrcSet(data.backdrop_path, BACKDROP_IMAGE_SIZES) : null;
+
+  const posterLandscapeSrcSetMobile = data?.backdrop_path ? buildTmdbImageSrcSet(data.backdrop_path, { sm: BACKDROP_IMAGE_SIZES.sm }) : null;
 
   const toggleFavoriteMutation = useToggleFavorite(
     tvId,
@@ -140,23 +142,35 @@ function Tv() {
       <section className={styles.topBlock} ref={topBlockRef}>
         <div className={styles.posterWrap}>
           {showLandscapePoster ? (
-            <img
-              className={styles.posterLandscape}
-              src={posterUrlLandscape}
-              alt={`${data.name} backdrop`}
-              onError={(e) => {
-                e.currentTarget.src = imageFallbackLandscape;
-              }}
-            />
+            <picture>
+              {posterLandscapeSrcSetMobile ? <source media="(max-width: 640px)" srcSet={posterLandscapeSrcSetMobile} sizes="300px" /> : null}
+              {posterLandscapeSrcSet ? <source srcSet={posterLandscapeSrcSet} sizes={BACKDROP_IMAGE_SIZES_ATTR} /> : null}
+              <img
+                className={styles.posterLandscape}
+                src={posterLandscapeSrc}
+                srcSet={posterLandscapeSrcSet ?? undefined}
+                sizes={BACKDROP_IMAGE_SIZES_ATTR}
+                alt={`${data.name} backdrop`}
+                onError={(e) => {
+                  e.currentTarget.src = imageFallbackLandscape;
+                }}
+              />
+            </picture>
           ) : (
-            <img
-              className={styles.poster}
-              src={posterUrl}
-              alt={data.name}
-              onError={(e) => {
-                e.currentTarget.src = imageFallbackPortrait;
-              }}
-            />
+            <picture>
+              {posterSrcSetMobile ? <source media="(max-width: 640px)" srcSet={posterSrcSetMobile} /> : null}
+              {posterSrcSet ? <source srcSet={posterSrcSet} sizes={POSTER_IMAGE_SIZES_ATTR} /> : null}
+              <img
+                className={styles.poster}
+                src={posterSrc}
+                srcSet={posterSrcSet ?? undefined}
+                sizes={POSTER_IMAGE_SIZES_ATTR}
+                alt={data.name}
+                onError={(e) => {
+                  e.currentTarget.src = imageFallbackPortrait;
+                }}
+              />
+            </picture>
           )}
           <button
             className={`${styles.addButton} ${isFavorited ? styles.favorited : ""}`}

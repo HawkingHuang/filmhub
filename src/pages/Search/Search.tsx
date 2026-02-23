@@ -3,7 +3,6 @@ import { useSearchParams } from "react-router-dom";
 import ResponsivePagination from "react-responsive-pagination";
 import "react-responsive-pagination/themes/minimal.css";
 import { useSearchMulti } from "../../hooks/useSearchMulti";
-import { BACKDROP_BASE_URL, POSTER_BASE_URL, PROFILE_BASE_URL } from "../../lib/api";
 import type { SearchMultiResult } from "../../types/searchTypes";
 import styles from "./Search.module.scss";
 import imageFallbackPortrait from "../../assets/images/image_fallback_portrait.webp";
@@ -26,22 +25,28 @@ function Search() {
   const resultItems = useMemo<ResultsGridItem[]>(() => {
     return visibleResults.map((item) => {
       const titleText = item.title ?? item.name ?? "Untitled";
-      let imageUrl: string | undefined;
+      let imagePath: string | null = null;
+      let imageType: ResultsGridItem["imageType"];
+
       if (item.media_type === "person" && item.profile_path) {
-        imageUrl = `${PROFILE_BASE_URL}${item.profile_path}`;
+        imagePath = item.profile_path;
+        imageType = "profile";
       } else if (item.poster_path) {
-        imageUrl = `${POSTER_BASE_URL}${item.poster_path}`;
+        imagePath = item.poster_path;
+        imageType = "poster";
       } else if (item.backdrop_path) {
-        imageUrl = `${BACKDROP_BASE_URL}${item.backdrop_path}`;
-      } else {
-        imageUrl = imageFallbackPortrait;
+        imagePath = item.backdrop_path;
+        imageType = "backdrop";
       }
+
       const linkTo = item.media_type === "person" ? `/actors/${item.id}` : item.media_type === "movie" ? `/movies/${item.id}` : `/tv/${item.id}`;
       return {
         id: `${item.media_type}-${item.id}`,
         href: linkTo,
         title: titleText,
-        imageSrc: imageUrl,
+        imageSrc: imageFallbackPortrait,
+        imagePath,
+        imageType,
         alt: titleText,
         loading: "lazy",
       };

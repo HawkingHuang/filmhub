@@ -27,7 +27,8 @@ export type RecentMovie = FavoritePayload;
 
 export type Recommendation = {
   id: number;
-  title: string;
+  title?: string;
+  name?: string;
   poster_path: string | null;
 };
 

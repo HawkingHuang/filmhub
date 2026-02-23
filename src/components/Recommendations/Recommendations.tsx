@@ -1,4 +1,3 @@
-import { POSTER_BASE_URL } from "../../lib/api";
 import type { Recommendation } from "../../types/movieTypes";
 import imageFallbackPortrait from "../../assets/images/image_fallback_portrait.webp";
 import ResultsGrid, { type ResultsGridItem } from "../ResultsGrid";
@@ -14,13 +13,14 @@ function Recommendations({ recommendations, title = "Recommendations", basePath 
   const items: ResultsGridItem[] = recommendations
     .filter((rec) => Boolean(rec?.id))
     .map((rec) => {
-      const recPoster = rec.poster_path ? `${POSTER_BASE_URL}${rec.poster_path}` : imageFallbackPortrait;
-      const recTitle = rec.title ?? "Recommendation";
+      const recTitle = rec.title ?? rec.name ?? "Recommendation";
       return {
         id: rec.id,
         href: `${basePath}/${rec.id}`,
         title: recTitle,
-        imageSrc: recPoster,
+        imageSrc: imageFallbackPortrait,
+        imagePath: rec.poster_path ?? null,
+        imageType: rec.poster_path ? "poster" : undefined,
         alt: recTitle,
       };
     });

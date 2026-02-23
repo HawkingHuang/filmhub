@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
-import { POSTER_BASE_URL, PROFILE_BASE_URL } from "../../lib/api";
+import { PROFILE_IMAGE_SIZES, PROFILE_IMAGE_SIZES_ATTR, buildTmdbImageSrcSet, buildTmdbImageUrl } from "../../lib/api";
 import type { ActorCredit } from "../../types/actorTypes";
 import styles from "./Actor.module.scss";
 import FullPageSpinner from "../../components/FullPageSpinner/FullPageSpinner";
@@ -77,14 +77,15 @@ function Actor() {
   const creditItems = useMemo<ResultsGridItem[]>(() => {
     return filteredCredits.map((credit: ActorCredit, index) => {
       const posterPath = credit.poster_path || credit.backdrop_path || null;
-      const posterUrl = posterPath ? `${POSTER_BASE_URL}${posterPath}` : imageFallbackPortrait;
       const titleText = getCreditTitle(credit);
       const itemKey = `${credit.media_type}-${credit.id}-${credit.credit_id ?? index}`;
       return {
         id: itemKey,
         href: credit.media_type === "tv" ? `/tv/${credit.id}` : `/movies/${credit.id}`,
         title: titleText,
-        imageSrc: posterUrl,
+        imageSrc: imageFallbackPortrait,
+        imagePath: posterPath,
+        imageType: posterPath ? "poster" : undefined,
         alt: titleText,
         meta: <div className={styles.creditMeta}>{credit.character || "—"}</div>,
       };
@@ -103,20 +104,26 @@ function Actor() {
     );
   }
 
-  const profileUrl = actor.profile_path ? `${PROFILE_BASE_URL}${actor.profile_path}` : imageFallbackPortrait;
+  const profileSrcSet = actor.profile_path ? buildTmdbImageSrcSet(actor.profile_path, PROFILE_IMAGE_SIZES) : null;
+  const profileSrc = actor.profile_path ? buildTmdbImageUrl(actor.profile_path, PROFILE_IMAGE_SIZES.md) : imageFallbackPortrait;
 
   return (
     <div className="container">
       <section className={styles.topSection}>
         <div className={styles.profileWrap}>
-          <img
-            className={styles.profileImage}
-            src={profileUrl}
-            alt={actor.name}
-            onError={(e) => {
-              e.currentTarget.src = imageFallbackPortrait;
-            }}
-          />
+          <picture>
+            {profileSrcSet ? <source srcSet={profileSrcSet} sizes={PROFILE_IMAGE_SIZES_ATTR} /> : null}
+            <img
+              className={styles.profileImage}
+              src={profileSrc}
+              srcSet={profileSrcSet ?? undefined}
+              sizes={PROFILE_IMAGE_SIZES_ATTR}
+              alt={actor.name}
+              onError={(e) => {
+                e.currentTarget.src = imageFallbackPortrait;
+              }}
+            />
+          </picture>
         </div>
         <ActorBioSection actor={actor} />
       </section>

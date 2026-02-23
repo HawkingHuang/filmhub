@@ -25,6 +25,11 @@
         box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
       }
 
+      picture {
+        display: block;
+        width: 100%;
+      }
+
       .castImage,
       .castImageFallback {
         width: 100%;

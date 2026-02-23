@@ -19,6 +19,13 @@
     align-items: flex-start;
     justify-content: center;
 
+    picture {
+      display: block;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+
     .profileImage {
       width: 100%;
       max-width: 220px;

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import type { Swiper as SwiperType } from "swiper";
@@ -10,7 +10,7 @@ import { Link } from "react-router-dom";
 import { GENRES_BY_TYPE } from "../../lib/constants";
 import { Skeleton } from "@radix-ui/themes";
 import type { GenreRowProps } from "../../types/genreTypes";
-import { POSTER_BASE_URL } from "../../lib/api";
+import { POSTER_IMAGE_SIZES, POSTER_IMAGE_SIZES_ATTR, buildTmdbImageSrcSet, buildTmdbImageUrl } from "../../lib/api";
 import styles from "./Genre.module.scss";
 import imageFallbackLandscape from "../../assets/images/image_fallback_landscape.webp";
 import { useTmdbList } from "../../hooks/useTmdbList";
@@ -28,76 +28,14 @@ function GenreRow({ title, endpoint, withGenres, mediaType }: GenreRowProps) {
   const movies = useMemo(() => {
     return data?.results ?? [];
   }, [data]);
-
-  // Preload all images for this row and only show images after all finished
-  const [preloaded, setPreloaded] = useState(false);
-  const imageUrls = useMemo(() => {
-    return movies
-      .map((m) => m.backdrop_path ?? m.poster_path)
-      .filter((p): p is string => Boolean(p))
-      .map((p) => `${POSTER_BASE_URL}${p}`);
-  }, [movies]);
-
-  useEffect(() => {
-    let cancelled = false;
-    const preloadUrls = imageUrls.slice(0, 4);
-
-    if (preloadUrls.length > 0) {
-      queueMicrotask(() => {
-        if (cancelled) return;
-        setPreloaded((prev) => (prev ? false : prev));
-      });
-    }
-
-    if (imageUrls.length === 0) {
-      queueMicrotask(() => {
-        if (cancelled) return;
-        setPreloaded(true);
-      });
-      return () => {
-        cancelled = true;
-      };
-    }
-
-    let counter = 0;
-    const imgs: HTMLImageElement[] = [];
-
-    const onFinish = () => {
-      if (cancelled) return;
-      counter += 1;
-      if (counter >= preloadUrls.length) {
-        queueMicrotask(() => {
-          if (cancelled) return;
-          setPreloaded(true);
-        });
-      }
-    };
-
-    preloadUrls.forEach((src) => {
-      const img = new Image();
-      img.onload = onFinish;
-      img.onerror = onFinish;
-      img.src = src;
-      imgs.push(img);
-    });
-
-    return () => {
-      cancelled = true;
-      imgs.forEach((img) => {
-        img.onload = null;
-        img.onerror = null;
-      });
-    };
-  }, [imageUrls]);
-
-  const showSkeleton = isLoading || !preloaded;
+  const showSkeleton = isLoading;
   const slideCount = Math.max(4, movies.length);
 
   useEffect(() => {
-    if (!showSkeleton) {
+    if (!isLoading) {
       swiperRef.current?.update?.();
     }
-  }, [showSkeleton, movies.length]);
+  }, [isLoading, movies.length]);
 
   if (isError) {
     return (
@@ -158,28 +96,35 @@ function GenreRow({ title, endpoint, withGenres, mediaType }: GenreRowProps) {
         {Array.from({ length: slideCount }).map((_, index) => {
           const movie = movies[index];
           const imagePath = movie ? (movie.backdrop_path ?? movie.poster_path) : null;
-          const imageUrl = imagePath ? `${POSTER_BASE_URL}${imagePath}` : imageFallbackLandscape;
+          const imageSrc = imagePath ? buildTmdbImageUrl(imagePath, POSTER_IMAGE_SIZES.lg) : imageFallbackLandscape;
+          const imageSrcSet = imagePath ? buildTmdbImageSrcSet(imagePath, POSTER_IMAGE_SIZES) : null;
+          const imageSrcSetMobile = imagePath ? buildTmdbImageSrcSet(imagePath, { sm: POSTER_IMAGE_SIZES.sm }) : null;
           const titleText = movie?.title ?? movie?.name ?? "";
-
           const cardContent = (
             <div className={styles.card}>
               {movie ? (
-                <img
-                  className={styles.poster}
-                  src={imageUrl}
-                  alt={titleText}
-                  onLoad={(e) => {
-                    const el = e.currentTarget as HTMLImageElement;
-                    el.style.opacity = "1";
-                    el.style.transform = "translateY(0)";
-                  }}
-                  onError={(e) => {
-                    const el = e.currentTarget as HTMLImageElement;
-                    el.style.opacity = "1";
-                    el.style.transform = "translateY(0)";
-                    el.src = imageFallbackLandscape;
-                  }}
-                />
+                <picture>
+                  {imageSrcSetMobile ? <source media="(max-width: 640px)" srcSet={imageSrcSetMobile} /> : null}
+                  {imageSrcSet ? <source srcSet={imageSrcSet} sizes={POSTER_IMAGE_SIZES_ATTR} /> : null}
+                  <img
+                    className={styles.poster}
+                    src={imageSrc}
+                    srcSet={imageSrcSet ?? undefined}
+                    sizes={POSTER_IMAGE_SIZES_ATTR}
+                    alt={titleText}
+                    onLoad={(e) => {
+                      const el = e.currentTarget as HTMLImageElement;
+                      el.style.opacity = "1";
+                      el.style.transform = "translateY(0)";
+                    }}
+                    onError={(e) => {
+                      const el = e.currentTarget as HTMLImageElement;
+                      el.style.opacity = "1";
+                      el.style.transform = "translateY(0)";
+                      el.src = imageFallbackLandscape;
+                    }}
+                  />
+                </picture>
               ) : (
                 <div className={styles.posterPlaceholder} aria-hidden />
               )}

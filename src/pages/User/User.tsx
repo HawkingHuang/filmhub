@@ -6,7 +6,6 @@ import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { PAGE_SIZE } from "../../lib/constants";
 import ResponsivePagination from "react-responsive-pagination";
-import { POSTER_BASE_URL } from "../../lib/api";
 import type { RootState } from "../../store";
 import imageFallbackPortrait from "../../assets/images/image_fallback_portrait.webp";
 import styles from "./User.module.scss";
@@ -36,12 +35,13 @@ function User() {
 
   const favoriteItems = useMemo<ResultsGridItem[]>(() => {
     return pagedFavorites.map((item) => {
-      const imageUrl = item.poster_path ? `${POSTER_BASE_URL}${item.poster_path}` : imageFallbackPortrait;
       return {
         id: item.movie_id,
         href: item.media_type === "movie" ? `/movies/${item.movie_id}` : `/tv/${item.movie_id}`,
         title: item.title,
-        imageSrc: imageUrl,
+        imageSrc: imageFallbackPortrait,
+        imagePath: item.poster_path ?? null,
+        imageType: item.poster_path ? "poster" : undefined,
         alt: item.title,
         loading: "lazy",
       };
@@ -55,12 +55,13 @@ function User() {
 
   const recentItems = useMemo<ResultsGridItem[]>(() => {
     return recentMovies.map((item) => {
-      const imageUrl = item.poster_path ? `${POSTER_BASE_URL}${item.poster_path}` : imageFallbackPortrait;
       return {
         id: item.movie_id,
         href: item.media_type === "movie" ? `/movies/${item.movie_id}` : `/tv/${item.movie_id}`,
         title: item.title,
-        imageSrc: imageUrl,
+        imageSrc: imageFallbackPortrait,
+        imagePath: item.poster_path ?? null,
+        imageType: item.poster_path ? "poster" : undefined,
         alt: item.title,
         loading: "lazy",
       };

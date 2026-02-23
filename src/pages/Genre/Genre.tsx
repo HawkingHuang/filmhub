@@ -3,7 +3,6 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useMovieGenres } from "../../hooks/useMovieGenres";
 import ResponsivePagination from "react-responsive-pagination";
 import "react-responsive-pagination/themes/minimal.css";
-import { POSTER_BASE_URL } from "../../lib/api";
 import type { MovieGenre, TmdbMovie } from "../../types/genreTypes";
 import styles from "./Genre.module.scss";
 import imageFallbackPortrait from "../../assets/images/image_fallback_portrait.webp";
@@ -50,12 +49,13 @@ function Genre() {
   const resultItems = useMemo<ResultsGridItem[]>(() => {
     return results.map((item) => {
       const titleText = item.title ?? item.name ?? "Untitled";
-      const imageUrl = item.poster_path ? `${POSTER_BASE_URL}${item.poster_path}` : imageFallbackPortrait;
       return {
         id: item.id,
         href: `${detailBasePath}/${item.id}`,
         title: titleText,
-        imageSrc: imageUrl,
+        imageSrc: imageFallbackPortrait,
+        imagePath: item.poster_path ?? null,
+        imageType: item.poster_path ? "poster" : undefined,
         alt: titleText,
         loading: "lazy",
       };
