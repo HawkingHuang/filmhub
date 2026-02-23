@@ -14,8 +14,10 @@ import { POSTER_IMAGE_SIZES, POSTER_IMAGE_SIZES_ATTR, buildTmdbImageSrcSet, buil
 import styles from "./Genre.module.scss";
 import imageFallbackLandscape from "../../assets/images/image_fallback_landscape.webp";
 import { useTmdbList } from "../../hooks/useTmdbList";
+import LazyMount from "../LazyMount/LazyMount";
 
 function GenreRow({ title, endpoint, withGenres, mediaType }: GenreRowProps) {
+  console.log("[GenreRow] mount/render:", title);
   const swiperRef = useRef<SwiperType | null>(null);
   const prevRef = useRef<HTMLButtonElement | null>(null);
   const nextRef = useRef<HTMLButtonElement | null>(null);
@@ -180,12 +182,21 @@ type GenreProps = {
 function Genre({ searchParams }: GenreProps) {
   const type = searchParams.get("type") === "tv" ? "tv" : "movie";
   const defaultEndpoint = type === "tv" ? "/discover/tv" : "/discover/movie";
+
   return (
     <div className="container">
       <div className={styles.genre}>
-        {GENRES_BY_TYPE[type].map((genre) => (
-          <GenreRow key={genre.key} title={genre.title} endpoint={genre.endpoint ?? defaultEndpoint} withGenres={genre.withGenres} mediaType={type} />
-        ))}
+        {GENRES_BY_TYPE[type].map((genre, index) => {
+          if (index < 3) {
+            return <GenreRow key={genre.key} title={genre.title} endpoint={genre.endpoint ?? defaultEndpoint} withGenres={genre.withGenres} mediaType={type} />;
+          }
+
+          return (
+            <LazyMount key={genre.key}>
+              <GenreRow title={genre.title} endpoint={genre.endpoint ?? defaultEndpoint} withGenres={genre.withGenres} mediaType={type} />
+            </LazyMount>
+          );
+        })}
       </div>
     </div>
   );

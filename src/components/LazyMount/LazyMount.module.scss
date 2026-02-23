@@ -1,0 +1,18 @@
+.placeholder {
+  height: 260px;
+  width: 100%;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.04);
+}
+
+@media (max-width: 1024px) {
+  .placeholder {
+    height: 220px;
+  }
+}
+
+@media (max-width: 640px) {
+  .placeholder {
+    height: 200px;
+  }
+}
