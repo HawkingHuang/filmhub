@@ -17,7 +17,6 @@ import { useTmdbList } from "../../hooks/useTmdbList";
 import LazyMount from "../LazyMount/LazyMount";
 
 function GenreRow({ title, endpoint, withGenres, mediaType }: GenreRowProps) {
-  console.log("[GenreRow] mount/render:", title);
   const swiperRef = useRef<SwiperType | null>(null);
   const prevRef = useRef<HTMLButtonElement | null>(null);
   const nextRef = useRef<HTMLButtonElement | null>(null);
