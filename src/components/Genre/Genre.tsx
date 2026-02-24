@@ -122,6 +122,15 @@ function GenreRow({ title, endpoint, withGenres, mediaType }: GenreRowProps) {
                       const el = e.currentTarget as HTMLImageElement;
                       el.style.opacity = "1";
                       el.style.transform = "translateY(0)";
+                      el.removeAttribute("srcset");
+                      el.removeAttribute("sizes");
+                      const picture = el.parentElement;
+                      if (picture?.tagName === "PICTURE") {
+                        picture.querySelectorAll("source").forEach((source) => {
+                          source.removeAttribute("srcset");
+                          source.removeAttribute("sizes");
+                        });
+                      }
                       el.src = imageFallbackLandscape;
                     }}
                   />
