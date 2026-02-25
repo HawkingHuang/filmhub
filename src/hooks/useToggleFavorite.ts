@@ -30,12 +30,14 @@ export function useToggleFavorite(movieId: number | null, movie: FavoriteTarget 
       });
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["favorites", "list"] });
       queryClient.invalidateQueries({ queryKey: ["favorites", "isFavorited", movieId] });
       options?.onToast?.({ title: isFavorited ? "Successfully Removed" : "Successfully Added", description: movie?.title });
     },
     onError: (error) => {
       const err = error as { code?: string };
       options?.onToast?.({ title: err?.code === "23505" ? "Already in favorites" : "Something went wrong" });
+      queryClient.invalidateQueries({ queryKey: ["favorites", "list"] });
       queryClient.invalidateQueries({ queryKey: ["favorites", "isFavorited", movieId] });
     },
   });
