@@ -115,7 +115,7 @@ function Tv() {
 
     const update = () => {
       const width = el.getBoundingClientRect().width;
-      setShowLandscapePoster(width < 1360);
+      setShowLandscapePoster(width < 1312);
     };
 
     update();
