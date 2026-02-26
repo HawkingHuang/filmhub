@@ -16,6 +16,7 @@
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     gap: 24px;
+    flex: 1;
 
     .biographyWrap {
       grid-column: span 4;
@@ -29,7 +30,7 @@
         color: var(--color-black);
         background: rgba(255, 255, 255, 0.6);
         border-radius: 10px;
-        padding: 12px 80px 4px 16px;
+        padding: 22px 80px 4px 16px;
         position: relative;
         margin: 0;
         display: -webkit-box;
@@ -38,6 +39,7 @@
         -webkit-box-orient: vertical;
         overflow: hidden;
         box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+        height: 100%;
 
         .readMore {
           position: absolute;
@@ -67,6 +69,7 @@
       border-radius: 12px;
       padding: 12px 16px;
       box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+      min-width: 145px;
 
       .infoRow {
         display: flex;
