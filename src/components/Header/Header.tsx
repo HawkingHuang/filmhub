@@ -3,7 +3,7 @@ import { EnterIcon, PersonIcon, CaretDownIcon, HeartFilledIcon, EyeOpenIcon, Exi
 import { NavigationMenu } from "radix-ui";
 import { useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import logo from "../../assets/images/filmhub_logo.png";
+import logo from "../../assets/images/filmhub_logo.webp";
 import type { RootState } from "../../store";
 import { signOut } from "../../utils/authUtils";
 import styles from "./Header.module.scss";
