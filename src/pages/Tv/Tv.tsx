@@ -1,10 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import * as Toast from "@radix-ui/react-toast";
 import { BACKDROP_IMAGE_SIZES, POSTER_IMAGE_SIZES, BACKDROP_IMAGE_SIZES_ATTR, POSTER_IMAGE_SIZES_ATTR, buildTmdbImageSrcSet, buildTmdbImageUrl } from "../../lib/api";
-import { writeInRecentViewToLocalStorage } from "../../utils/commonUtils";
-import type { RecentMovie } from "../../types/movieTypes";
 import type { RootState } from "../../store";
 import type { ToastPayload } from "../../types/toastTypes";
 import styles from "../../assets/styles/MediaDetail.module.scss";
@@ -22,6 +20,7 @@ import { useVideos } from "../../hooks/useVideos";
 import { useCheckIsFavorited } from "../../hooks/useCheckIsFavorited";
 import { useToggleFavorite } from "../../hooks/useToggleFavorite";
 import useShowLandscapePoster from "../../hooks/useShowLandscapePoster";
+import useWriteRecentView from "../../hooks/useWriteRecentView";
 import MediaCredits from "../../components/MediaCredits/MediaCredits";
 import Trailer from "../../components/Trailer/Trailer";
 import Recommendations from "../../components/Recommendations/Recommendations";
@@ -94,20 +93,13 @@ function Tv() {
     const lastYear = data?.last_air_date?.slice(0, 4) ?? "—";
     return `${firstYear} - ${lastYear}`;
   }, [data?.first_air_date, data?.last_air_date]);
-
-  useEffect(() => {
-    if (!data || !tvId) return;
-
-    const payload: RecentMovie = {
-      movie_id: tvId,
-      title: data.name,
-      poster_path: data.poster_path ?? null,
-      backdrop_path: data.backdrop_path ?? null,
-      media_type: "tv",
-    };
-
-    writeInRecentViewToLocalStorage(payload);
-  }, [data, tvId]);
+  useWriteRecentView({
+    mediaId: tvId,
+    title: data?.name,
+    posterPath: data?.poster_path,
+    backdropPath: data?.backdrop_path,
+    mediaType: "tv",
+  });
 
   if (isLoading) {
     return <FullPageSpinner />;

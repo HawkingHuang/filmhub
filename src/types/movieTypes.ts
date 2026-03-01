@@ -23,7 +23,7 @@ export type FavoriteRow = FavoritePayload & {
   created_at: string;
 };
 
-export type RecentMovie = FavoritePayload;
+export type RecentMedia = FavoritePayload;
 
 export type Recommendation = {
   id: number;

@@ -1,5 +1,5 @@
 import { RECENT_KEY, MAX_RECENT } from "../lib/constants";
-import type { RecentMovie } from "../types/movieTypes";
+import type { RecentMedia } from "../types/movieTypes";
 
 export const formatRuntime = (runtime: number | null) => {
   if (!runtime) return "—";
@@ -8,11 +8,11 @@ export const formatRuntime = (runtime: number | null) => {
   return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
 };
 
-export const writeInRecentViewToLocalStorage = (payload: RecentMovie) => {
+export const writeInRecentViewToLocalStorage = (payload: RecentMedia) => {
   try {
     const raw = localStorage.getItem(RECENT_KEY);
     const parsed = raw ? JSON.parse(raw) : [];
-    const list: RecentMovie[] = Array.isArray(parsed) ? parsed : [];
+    const list: RecentMedia[] = Array.isArray(parsed) ? parsed : [];
     const filtered = list.filter((item) => item.movie_id !== payload.movie_id);
     const updated = [payload, ...filtered].slice(0, MAX_RECENT);
     localStorage.setItem(RECENT_KEY, JSON.stringify(updated));
@@ -21,7 +21,7 @@ export const writeInRecentViewToLocalStorage = (payload: RecentMovie) => {
   }
 };
 
-export const readRecentViewFromLocalStorage = (): RecentMovie[] => {
+export const readRecentViewFromLocalStorage = (): RecentMedia[] => {
   try {
     const raw = localStorage.getItem(RECENT_KEY);
     if (!raw) return [];

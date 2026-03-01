@@ -1,10 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import * as Toast from "@radix-ui/react-toast";
 import { BACKDROP_IMAGE_SIZES, POSTER_IMAGE_SIZES, BACKDROP_IMAGE_SIZES_ATTR, POSTER_IMAGE_SIZES_ATTR, buildTmdbImageSrcSet, buildTmdbImageUrl } from "../../lib/api";
-import { formatRuntime, writeInRecentViewToLocalStorage } from "../../utils/commonUtils";
-import type { RecentMovie } from "../../types/movieTypes";
+import { formatRuntime } from "../../utils/commonUtils";
 import type { RootState } from "../../store";
 import type { ToastPayload } from "../../types/toastTypes";
 import styles from "../../assets/styles/MediaDetail.module.scss";
@@ -23,6 +22,7 @@ import { useVideos } from "../../hooks/useVideos";
 import { useCheckIsFavorited } from "../../hooks/useCheckIsFavorited";
 import { useToggleFavorite } from "../../hooks/useToggleFavorite";
 import useShowLandscapePoster from "../../hooks/useShowLandscapePoster";
+import useWriteRecentView from "../../hooks/useWriteRecentView";
 import Trailer from "../../components/Trailer/Trailer";
 import Recommendations from "../../components/Recommendations/Recommendations";
 
@@ -87,21 +87,13 @@ function Movie() {
     return official ?? ytTrailers[0] ?? null;
   }, [videosData]);
   const trailerUrl = useMemo(() => (trailer ? `https://www.youtube.com/embed/${trailer.key}` : null), [trailer]);
-
-  // Automatically log recent view
-  useEffect(() => {
-    if (!data || !movieId) return;
-
-    const payload: RecentMovie = {
-      movie_id: movieId,
-      title: data.title,
-      poster_path: data.poster_path ?? null,
-      backdrop_path: data.backdrop_path ?? null,
-      media_type: "movie",
-    };
-
-    writeInRecentViewToLocalStorage(payload);
-  }, [data, movieId]);
+  useWriteRecentView({
+    mediaId: movieId,
+    title: data?.title,
+    posterPath: data?.poster_path,
+    backdropPath: data?.backdrop_path,
+    mediaType: "movie",
+  });
 
   if (isLoading) {
     return <FullPageSpinner />;
