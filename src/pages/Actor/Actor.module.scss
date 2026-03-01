@@ -14,52 +14,11 @@
   gap: 24px;
   padding: 24px 0 32px;
 
-  .profileWrap {
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-
-    picture {
-      display: block;
-      width: 100%;
-      display: flex;
-      justify-content: center;
-    }
-
-    .profileImage {
-      width: 100%;
-      max-width: 220px;
-      aspect-ratio: 2 / 3;
-      border-radius: 12px;
-      object-fit: cover;
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
-    }
-
-    .profileFallback {
-      width: 100%;
-      max-width: 220px;
-      aspect-ratio: 2 / 3;
-      border-radius: 12px;
-      background: rgba(0, 0, 0, 0.08);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: rgba(0, 0, 0, 0.6);
-      font-weight: 600;
-    }
-  }
-
   @include respond-sm {
     grid-template-columns: 1fr;
     gap: 20px;
 
     padding: 10px 0 32px;
-
-    .profileWrap {
-      .profileImage {
-        max-width: 160px;
-      }
-    }
   }
 
   @include respond-xs {

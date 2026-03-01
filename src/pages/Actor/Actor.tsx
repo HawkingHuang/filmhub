@@ -1,11 +1,11 @@
 import { useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
-import { PROFILE_IMAGE_SIZES, PROFILE_IMAGE_SIZES_ATTR, buildTmdbImageSrcSet, buildTmdbImageUrl } from "../../lib/api";
 import type { ActorCredit } from "../../types/actorTypes";
 import styles from "./Actor.module.scss";
 import FullPageSpinner from "../../components/FullPageSpinner/FullPageSpinner";
 import ActorBioSection from "../../components/ActorBioSection/ActorBioSection";
 import ActorCreditsHeader from "../../components/ActorCreditsHeader/ActorCreditsHeader";
+import ActorProfile from "../../components/ActorProfile/ActorProfile";
 import ResultsGrid, { type ResultsGridItem } from "../../components/ResultsGrid";
 import { useActorDetail } from "../../hooks/useActorDetail";
 import { useActorCredits } from "../../hooks/useActorCredits";
@@ -104,27 +104,10 @@ function Actor() {
     );
   }
 
-  const profileSrcSet = actor.profile_path ? buildTmdbImageSrcSet(actor.profile_path, PROFILE_IMAGE_SIZES) : null;
-  const profileSrc = actor.profile_path ? buildTmdbImageUrl(actor.profile_path, PROFILE_IMAGE_SIZES.md) : imageFallbackPortrait;
-
   return (
     <div className="container">
       <section className={styles.topSection}>
-        <div className={styles.profileWrap}>
-          <picture>
-            {profileSrcSet ? <source srcSet={profileSrcSet} sizes={PROFILE_IMAGE_SIZES_ATTR} /> : null}
-            <img
-              className={styles.profileImage}
-              src={profileSrc}
-              srcSet={profileSrcSet ?? undefined}
-              sizes={PROFILE_IMAGE_SIZES_ATTR}
-              alt={actor.name}
-              onError={(e) => {
-                e.currentTarget.src = imageFallbackPortrait;
-              }}
-            />
-          </picture>
-        </div>
+        <ActorProfile profilePath={actor.profile_path} actorName={actor.name} />
         <ActorBioSection actor={actor} />
       </section>
 

@@ -1,0 +1,26 @@
+@use "../../assets/styles/mixins" as *;
+
+.profileWrap {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+
+  picture {
+    display: block;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+  .profileImage {
+    width: 100%;
+    max-width: 220px;
+    aspect-ratio: 2 / 3;
+    border-radius: 12px;
+    object-fit: cover;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+
+    @include respond-sm {
+      max-width: 160px;
+    }
+  }
+}
