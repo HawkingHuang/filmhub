@@ -22,6 +22,7 @@ import { useRecommendations } from "../../hooks/useRecommendations";
 import { useVideos } from "../../hooks/useVideos";
 import { useCheckIsFavorited } from "../../hooks/useCheckIsFavorited";
 import { useToggleFavorite } from "../../hooks/useToggleFavorite";
+import useShowLandscapePoster from "../../hooks/useShowLandscapePoster";
 import Trailer from "../../components/Trailer/Trailer";
 import Recommendations from "../../components/Recommendations/Recommendations";
 
@@ -34,7 +35,6 @@ function Movie() {
   const [toastOpen, setToastOpen] = useState(false);
   const [toastContent, setToastContent] = useState<ToastPayload | null>(null);
   const [isOverviewOpen, setIsOverviewOpen] = useState(false);
-  const [showLandscapePoster, setShowLandscapePoster] = useState(false);
   const topBlockRef = useRef<HTMLElement | null>(null);
 
   // Derived identifiers
@@ -49,6 +49,7 @@ function Movie() {
   const { data: videosData } = useVideos(id);
   const { data: recommendationsData } = useRecommendations(id);
   const { data: isFavorited } = useCheckIsFavorited(movieId, isAuthenticated);
+  const showLandscapePoster = useShowLandscapePoster(topBlockRef, isLoading);
 
   // Derived UI helpers
   const { ref: overviewRef, isClamped } = useIsClamped(data?.overview ?? "");
@@ -101,24 +102,6 @@ function Movie() {
 
     writeInRecentViewToLocalStorage(payload);
   }, [data, movieId]);
-
-  // Resize observer for landscape poster
-  useEffect(() => {
-    if (isLoading) return;
-    const el = topBlockRef.current;
-    if (!el) return;
-
-    const update = () => {
-      const width = el.getBoundingClientRect().width;
-      setShowLandscapePoster(width < 1312);
-    };
-
-    update();
-    const ro = new ResizeObserver(() => update());
-    ro.observe(el);
-
-    return () => ro.disconnect();
-  }, [isLoading]);
 
   if (isLoading) {
     return <FullPageSpinner />;
