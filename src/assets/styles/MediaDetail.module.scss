@@ -7,96 +7,6 @@
   gap: 32px;
   padding: 24px 0 40px;
 
-  .posterWrap {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-    gap: 20px;
-
-    picture {
-      display: block;
-      width: 100%;
-      display: flex;
-      justify-content: center;
-    }
-
-    .poster {
-      width: 100%;
-      max-width: 320px;
-      aspect-ratio: 5 / 7.5;
-      display: block;
-      height: auto;
-      border-radius: 12px;
-      object-fit: cover;
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
-    }
-
-    .posterLandscape {
-      width: 75%;
-      aspect-ratio: 1.77 / 1;
-      display: block;
-      height: auto;
-      border-radius: 12px;
-      object-fit: cover;
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
-    }
-
-    .posterFallback {
-      width: 100%;
-      max-width: 320px;
-      aspect-ratio: 2 / 3;
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.08);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--color-black);
-    }
-
-    .addButton {
-      border-radius: 10px;
-      border: none;
-      background: #ffd43b;
-      color: var(--color-black);
-      font-size: 18px;
-      font-weight: 600;
-      cursor: pointer;
-      width: 100%;
-      max-width: 320px;
-      height: 60px;
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
-      transition: background 300ms ease-in-out;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-
-      svg {
-        width: 20px;
-        height: 20px;
-      }
-
-      &:hover {
-        background: #fcc419;
-      }
-
-      &:disabled {
-        cursor: not-allowed;
-        box-shadow: none;
-        background: rgba(0, 0, 0, 0.15);
-      }
-    }
-
-    .addButton.favorited {
-      background: #f03e3e;
-
-      &:hover {
-        background: #e03131;
-      }
-    }
-  }
-
   .info {
     display: flex;
     flex-direction: column;
@@ -227,14 +137,6 @@
     grid-template-columns: 1fr;
     gap: 24px;
 
-    .posterWrap {
-      .addButton {
-        max-width: 75%;
-        height: 54px;
-        font-size: 16px;
-      }
-    }
-
     .info {
       .infoHeader {
         .title {
@@ -251,31 +153,11 @@
   @include respond-md {
     grid-template-columns: 1fr;
     gap: 24px;
-
-    .posterWrap {
-      .addButton {
-        max-width: 75%;
-        height: 54px;
-        font-size: 16px;
-      }
-    }
   }
 
   @include respond-sm {
     grid-template-columns: 1fr;
     gap: 20px;
-
-    .posterWrap {
-      .posterLandscape {
-        width: 85%;
-      }
-
-      .addButton {
-        max-width: 85%;
-        height: 54px;
-        font-size: 16px;
-      }
-    }
 
     .info {
       .infoHeader {
@@ -315,18 +197,6 @@
   @include respond-xs {
     grid-template-columns: 1fr;
     gap: 16px;
-
-    .posterWrap {
-      .posterLandscape {
-        width: 90%;
-      }
-
-      .addButton {
-        max-width: 90%;
-        height: 52px;
-        font-size: 15px;
-      }
-    }
 
     .info {
       .infoHeader {

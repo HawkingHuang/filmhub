@@ -2,15 +2,12 @@ import { useRef, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import * as Toast from "@radix-ui/react-toast";
-import { BACKDROP_IMAGE_SIZES, POSTER_IMAGE_SIZES, BACKDROP_IMAGE_SIZES_ATTR, POSTER_IMAGE_SIZES_ATTR, buildTmdbImageSrcSet, buildTmdbImageUrl } from "../../lib/api";
 import { deriveMovieViewData, formatRuntime } from "../../utils/commonUtils";
 import type { RootState } from "../../store";
 import type { ToastPayload } from "../../types/toastTypes";
 import styles from "../../assets/styles/MediaDetail.module.scss";
-import { HeartIcon, Cross1Icon, CrossCircledIcon, OpenInNewWindowIcon } from "@radix-ui/react-icons";
+import { CrossCircledIcon, OpenInNewWindowIcon } from "@radix-ui/react-icons";
 import starIcon from "../../assets/images/star.svg";
-import imageFallbackPortrait from "../../assets/images/image_fallback_portrait.webp";
-import imageFallbackLandscape from "../../assets/images/image_fallback_landscape.webp";
 import FullPageSpinner from "../../components/FullPageSpinner/FullPageSpinner";
 import MediaCredits from "../../components/MediaCredits/MediaCredits";
 import * as Dialog from "@radix-ui/react-dialog";
@@ -23,6 +20,7 @@ import { useCheckIsFavorited } from "../../hooks/useCheckIsFavorited";
 import { useToggleFavorite } from "../../hooks/useToggleFavorite";
 import useShowLandscapePoster from "../../hooks/useShowLandscapePoster";
 import useWriteRecentView from "../../hooks/useWriteRecentView";
+import MediaPosterCard from "../../components/MediaPosterCard/MediaPosterCard";
 import Trailer from "../../components/Trailer/Trailer";
 import Recommendations from "../../components/Recommendations/Recommendations";
 
@@ -51,17 +49,6 @@ function Movie() {
 
   // Derived UI helpers
   const { ref: overviewRef, isClamped } = useIsClamped(data?.overview ?? "");
-  const posterSrc = data?.poster_path ? buildTmdbImageUrl(data.poster_path, POSTER_IMAGE_SIZES.lg) : imageFallbackPortrait;
-
-  const posterSrcSet = data?.poster_path ? buildTmdbImageSrcSet(data.poster_path, POSTER_IMAGE_SIZES) : null;
-
-  const posterSrcSetMobile = data?.poster_path ? buildTmdbImageSrcSet(data.poster_path, { sm: POSTER_IMAGE_SIZES.sm }) : null;
-
-  const posterLandscapeSrc = data?.backdrop_path ? buildTmdbImageUrl(data.backdrop_path, BACKDROP_IMAGE_SIZES.md) : imageFallbackLandscape;
-
-  const posterLandscapeSrcSet = data?.backdrop_path ? buildTmdbImageSrcSet(data.backdrop_path, BACKDROP_IMAGE_SIZES) : null;
-
-  const posterLandscapeSrcSetMobile = data?.backdrop_path ? buildTmdbImageSrcSet(data.backdrop_path, { sm: BACKDROP_IMAGE_SIZES.sm }) : null;
 
   // Add/remove favorite mutation
   const toggleFavoriteMutation = useToggleFavorite(movieId, data, "movie", Boolean(isFavorited), {
@@ -72,6 +59,7 @@ function Movie() {
   });
 
   const { recommendations, castMembers, directorName, trailer, trailerUrl } = deriveMovieViewData(creditsData, recommendationsData, videosData);
+
   useWriteRecentView({
     mediaId: movieId,
     title: data?.title,
@@ -95,64 +83,18 @@ function Movie() {
   return (
     <div className="container">
       <section className={styles.topBlock} ref={topBlockRef}>
-        <div className={styles.posterWrap}>
-          {showLandscapePoster ? (
-            <picture>
-              {posterLandscapeSrcSetMobile ? <source media="(max-width: 640px)" srcSet={posterLandscapeSrcSetMobile} sizes="300px" /> : null}
-              {posterLandscapeSrcSet ? <source srcSet={posterLandscapeSrcSet} sizes={BACKDROP_IMAGE_SIZES_ATTR} /> : null}
-              <img
-                className={styles.posterLandscape}
-                src={posterLandscapeSrc}
-                srcSet={posterLandscapeSrcSet ?? undefined}
-                sizes={BACKDROP_IMAGE_SIZES_ATTR}
-                alt={`${data.title} backdrop`}
-                onError={(e) => {
-                  e.currentTarget.src = imageFallbackLandscape;
-                }}
-              />
-            </picture>
-          ) : (
-            <picture>
-              {posterSrcSetMobile ? <source media="(max-width: 640px)" srcSet={posterSrcSetMobile} /> : null}
-              {posterSrcSet ? <source srcSet={posterSrcSet} sizes={POSTER_IMAGE_SIZES_ATTR} /> : null}
-              <img
-                className={styles.poster}
-                src={posterSrc}
-                srcSet={posterSrcSet ?? undefined}
-                sizes={POSTER_IMAGE_SIZES_ATTR}
-                alt={data.title}
-                onError={(e) => {
-                  e.currentTarget.src = imageFallbackPortrait;
-                }}
-              />
-            </picture>
-          )}
-          <button
-            className={`${styles.addButton} ${isFavorited ? styles.favorited : ""}`}
-            type="button"
-            disabled={!isAuthenticated || toggleFavoriteMutation.isPending}
-            onClick={() => {
-              if (!isAuthenticated || toggleFavoriteMutation.isPending) return;
-              toggleFavoriteMutation.mutate();
-            }}
-          >
-            {!isAuthenticated ? (
-              "Login to Favorite"
-            ) : toggleFavoriteMutation.isPending ? (
-              "Saving..."
-            ) : isFavorited ? (
-              <>
-                <Cross1Icon />
-                <span>Remove from Favorites</span>
-              </>
-            ) : (
-              <>
-                <HeartIcon />
-                <span>Add to Favorites</span>
-              </>
-            )}
-          </button>
-        </div>
+        <MediaPosterCard
+          title={data.title}
+          posterPath={data.poster_path}
+          backdropPath={data.backdrop_path}
+          showLandscapePoster={showLandscapePoster}
+          isAuthenticated={isAuthenticated}
+          isFavorited={Boolean(isFavorited)}
+          isPending={toggleFavoriteMutation.isPending}
+          onToggleFavorite={() => {
+            toggleFavoriteMutation.mutate();
+          }}
+        />
         <div className={styles.info}>
           <div className={styles.infoHeader}>
             <div className={styles.titleBlock}>
