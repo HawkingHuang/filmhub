@@ -1,8 +1,9 @@
-import { useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import * as Toast from "@radix-ui/react-toast";
 import { BACKDROP_IMAGE_SIZES, POSTER_IMAGE_SIZES, BACKDROP_IMAGE_SIZES_ATTR, POSTER_IMAGE_SIZES_ATTR, buildTmdbImageSrcSet, buildTmdbImageUrl } from "../../lib/api";
+import { deriveTvViewData } from "../../utils/commonUtils";
 import type { RootState } from "../../store";
 import type { ToastPayload } from "../../types/toastTypes";
 import styles from "../../assets/styles/MediaDetail.module.scss";
@@ -34,10 +35,8 @@ function Tv() {
   const [isOverviewOpen, setIsOverviewOpen] = useState(false);
   const topBlockRef = useRef<HTMLElement | null>(null);
 
-  const tvId = useMemo(() => {
-    const parsed = Number(id);
-    return Number.isFinite(parsed) ? parsed : null;
-  }, [id]);
+  const parsedTvId = Number(id);
+  const tvId = Number.isFinite(parsedTvId) ? parsedTvId : null;
 
   const { data, isLoading, isError } = useTvDetail(id);
   const { data: creditsData, isError: isCreditsError } = useCredits(id, "tv");
@@ -78,21 +77,7 @@ function Tv() {
     },
   );
 
-  const recommendations = useMemo(() => recommendationsData?.results ?? [], [recommendationsData]);
-  const castMembers = useMemo(() => creditsData?.cast?.slice(0, 8) ?? [], [creditsData]);
-  const creators = useMemo(() => data?.created_by ?? [], [data]);
-  const trailer = useMemo(() => {
-    const videos = videosData?.results ?? [];
-    const ytTrailers = videos.filter((v) => v.site === "YouTube" && v.type === "Trailer");
-    const official = ytTrailers.find((v) => v.official === true);
-    return official ?? ytTrailers[0] ?? null;
-  }, [videosData]);
-  const trailerUrl = useMemo(() => (trailer ? `https://www.youtube.com/embed/${trailer.key}` : null), [trailer]);
-  const years = useMemo(() => {
-    const firstYear = data?.first_air_date?.slice(0, 4) ?? "—";
-    const lastYear = data?.last_air_date?.slice(0, 4) ?? "—";
-    return `${firstYear} - ${lastYear}`;
-  }, [data?.first_air_date, data?.last_air_date]);
+  const { recommendations, castMembers, creators, trailer, trailerUrl, years } = deriveTvViewData(data, creditsData, recommendationsData, videosData);
   useWriteRecentView({
     mediaId: tvId,
     title: data?.name,

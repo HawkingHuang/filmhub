@@ -1,9 +1,9 @@
-import { useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import * as Toast from "@radix-ui/react-toast";
 import { BACKDROP_IMAGE_SIZES, POSTER_IMAGE_SIZES, BACKDROP_IMAGE_SIZES_ATTR, POSTER_IMAGE_SIZES_ATTR, buildTmdbImageSrcSet, buildTmdbImageUrl } from "../../lib/api";
-import { formatRuntime } from "../../utils/commonUtils";
+import { deriveMovieViewData, formatRuntime } from "../../utils/commonUtils";
 import type { RootState } from "../../store";
 import type { ToastPayload } from "../../types/toastTypes";
 import styles from "../../assets/styles/MediaDetail.module.scss";
@@ -38,10 +38,8 @@ function Movie() {
   const topBlockRef = useRef<HTMLElement | null>(null);
 
   // Derived identifiers
-  const movieId = useMemo(() => {
-    const parsed = Number(id);
-    return Number.isFinite(parsed) ? parsed : null;
-  }, [id]);
+  const parsedMovieId = Number(id);
+  const movieId = Number.isFinite(parsedMovieId) ? parsedMovieId : null;
 
   // Data fetching
   const { data, isLoading, isError } = useMovieDetail(id);
@@ -73,20 +71,7 @@ function Movie() {
     },
   });
 
-  const recommendations = useMemo(() => recommendationsData?.results ?? [], [recommendationsData]);
-  const castMembers = useMemo(() => creditsData?.cast?.slice(0, 8) ?? [], [creditsData]);
-  const directorName = useMemo(() => {
-    const crew = creditsData?.crew ?? [];
-    const director = crew.find((c) => (c.job ?? "").toLowerCase() === "director");
-    return director?.name ?? "—";
-  }, [creditsData]);
-  const trailer = useMemo(() => {
-    const videos = videosData?.results ?? [];
-    const ytTrailers = videos.filter((v) => v.site === "YouTube" && v.type === "Trailer");
-    const official = ytTrailers.find((v) => v.official === true);
-    return official ?? ytTrailers[0] ?? null;
-  }, [videosData]);
-  const trailerUrl = useMemo(() => (trailer ? `https://www.youtube.com/embed/${trailer.key}` : null), [trailer]);
+  const { recommendations, castMembers, directorName, trailer, trailerUrl } = deriveMovieViewData(creditsData, recommendationsData, videosData);
   useWriteRecentView({
     mediaId: movieId,
     title: data?.title,
