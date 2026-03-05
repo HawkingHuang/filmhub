@@ -1,4 +1,4 @@
-# Film Center
+# FilmHub
 
 A modern movie discovery app built with React, TypeScript, and Vite. It integrates TMDB for movie data, Supabase for authentication and favorites, and OMDb (optional) for IMDb ratings.
 
