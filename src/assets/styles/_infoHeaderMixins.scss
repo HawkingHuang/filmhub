@@ -1,0 +1,80 @@
+@use "./mixins" as *;
+
+@mixin infoHeaderBase {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: auto auto 1fr;
+  column-gap: 24px;
+  row-gap: 12px;
+  min-height: 300px;
+
+  .meta {
+    grid-column: 4 / 5;
+    grid-row: 1 / 4;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.6);
+    padding: 12px 16px;
+    border-radius: 10px;
+    min-width: 160px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+
+    .metaItem {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 14px;
+
+      .metaLabel {
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-weight: 600;
+        color: rgba(0, 0, 0, 0.6);
+      }
+
+      .metaValue {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--color-black);
+      }
+    }
+  }
+}
+
+@mixin infoHeaderResponsive {
+  @include respond-lg {
+    .meta {
+      grid-row: 2 / 4;
+      gap: 10px;
+    }
+  }
+
+  @include respond-sm {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    height: auto;
+
+    .meta {
+      grid-column: 1 / -1;
+      grid-row: auto;
+      min-width: 0;
+    }
+  }
+
+  @include respond-xs {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    height: auto;
+
+    .meta {
+      grid-column: 1 / -1;
+      grid-row: auto;
+      min-width: 0;
+      padding: 10px 12px;
+    }
+  }
+}

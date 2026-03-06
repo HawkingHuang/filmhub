@@ -1,0 +1,6 @@
+@use "../../assets/styles/infoHeaderMixins" as *;
+
+.infoHeader {
+  @include infoHeaderBase;
+  @include infoHeaderResponsive;
+}

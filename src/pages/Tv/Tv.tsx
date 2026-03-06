@@ -1,16 +1,12 @@
 import { useRef, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import * as Toast from "@radix-ui/react-toast";
 import { deriveTvViewData } from "../../utils/commonUtils";
 import type { RootState } from "../../store";
 import type { ToastPayload } from "../../types/toastTypes";
 import styles from "../../assets/styles/MediaDetail.module.scss";
-import { CrossCircledIcon, OpenInNewWindowIcon } from "@radix-ui/react-icons";
-import starIcon from "../../assets/images/star.svg";
 import FullPageSpinner from "../../components/FullPageSpinner/FullPageSpinner";
-import * as Dialog from "@radix-ui/react-dialog";
-import { useIsClamped } from "../../hooks/useIsClamped";
 import { useCredits } from "../../hooks/useCredits";
 import { useTvDetail } from "../../hooks/useTvDetail";
 import { useRecommendations } from "../../hooks/useRecommendations";
@@ -20,6 +16,7 @@ import { useToggleFavorite } from "../../hooks/useToggleFavorite";
 import useShowLandscapePoster from "../../hooks/useShowLandscapePoster";
 import useWriteRecentView from "../../hooks/useWriteRecentView";
 import MediaPosterCard from "../../components/MediaPosterCard/MediaPosterCard";
+import TvInfoHeader from "../../components/TvInfoHeader/TvInfoHeader";
 import MediaCredits from "../../components/MediaCredits/MediaCredits";
 import Trailer from "../../components/Trailer/Trailer";
 import Recommendations from "../../components/Recommendations/Recommendations";
@@ -32,7 +29,6 @@ function Tv() {
   // Local UI state
   const [toastOpen, setToastOpen] = useState(false);
   const [toastContent, setToastContent] = useState<ToastPayload | null>(null);
-  const [isOverviewOpen, setIsOverviewOpen] = useState(false);
   const topBlockRef = useRef<HTMLElement | null>(null);
 
   // Derived identifiers
@@ -46,9 +42,6 @@ function Tv() {
   const { data: recommendationsData } = useRecommendations(id, "tv");
   const { data: isFavorited } = useCheckIsFavorited(tvId, isAuthenticated);
   const showLandscapePoster = useShowLandscapePoster(topBlockRef, isLoading);
-
-  // Derived UI helpers
-  const { ref: overviewRef, isClamped } = useIsClamped(data?.overview ?? "");
 
   // Add/remove favorite mutation
   const toggleFavoriteMutation = useToggleFavorite(
@@ -108,70 +101,16 @@ function Tv() {
           }}
         />
         <div className={styles.info}>
-          <div className={styles.infoHeader}>
-            <div className={styles.titleBlock}>
-              <h1 className={styles.title}>{data.name}</h1>
-              <div className={styles.genres}>
-                {data.genres?.map((genre) => (
-                  <Link key={genre.id} className={styles.genreTag} to={`/genres/${genre.id}?page=1&type=tv`}>
-                    {genre.name}
-                  </Link>
-                ))}
-              </div>
-              <Dialog.Root open={isOverviewOpen} onOpenChange={setIsOverviewOpen}>
-                <p className={styles.overview} ref={overviewRef}>
-                  {data.overview || "No overview available."}
-                  {data.overview && isClamped ? (
-                    <Dialog.Trigger asChild>
-                      <button className={styles.readMore}>
-                        <OpenInNewWindowIcon />
-                        More
-                      </button>
-                    </Dialog.Trigger>
-                  ) : null}
-                </p>
-                <Dialog.Portal>
-                  <Dialog.Overlay className={styles.dialogOverlay} />
-                  <Dialog.Content className={styles.dialogContent} aria-label={`${data.name} overview`}>
-                    <div className={styles.dialogHeader}>
-                      <Dialog.Title>{data.name} — Overview</Dialog.Title>
-                      <Dialog.Close asChild>
-                        <button className={styles.dialogClose}>
-                          <CrossCircledIcon />
-                        </button>
-                      </Dialog.Close>
-                    </div>
-                    <div className={styles.dialogBody}>{data.overview}</div>
-                  </Dialog.Content>
-                </Dialog.Portal>
-              </Dialog.Root>
-            </div>
-            <div className={styles.meta}>
-              <div className={styles.metaItem}>
-                <span className={styles.metaLabel}>Years</span>
-                <span className={styles.metaValue}>{years}</span>
-              </div>
-              <div className={styles.metaItem}>
-                <span className={styles.metaLabel}>Created By</span>
-                {creators.length > 0 ? <span className={styles.metaValue}>{creators.map((c) => c.name).join(", ")}</span> : <span className={styles.metaValue}>—</span>}
-              </div>
-              <div className={styles.metaItem}>
-                <span className={styles.metaLabel}>Seasons</span>
-                <span className={styles.metaValue}>{data.number_of_seasons}</span>
-              </div>
-              <div className={styles.metaItem}>
-                <span className={styles.metaLabel}>Episodes</span>
-                <span className={styles.metaValue}>{data.number_of_episodes}</span>
-              </div>
-              <div className={styles.metaItem}>
-                <span className={styles.metaLabel}>IMDB Rating</span>
-                <span className={styles.metaValue}>
-                  <img src={starIcon} alt="" />
-                  {data.imdb_rating}
-                </span>
-              </div>
-            </div>
-          </div>
+          <TvInfoHeader
+            title={data.name}
+            genres={data.genres}
+            overview={data.overview}
+            years={years}
+            creators={creators}
+            numberOfSeasons={data.number_of_seasons}
+            numberOfEpisodes={data.number_of_episodes}
+            imdbRating={data.imdb_rating}
+          />
 
           {isCreditsError ? <div className={styles.state}>Unable to load credits.</div> : <MediaCredits castMembers={castMembers} />}
         </div>
