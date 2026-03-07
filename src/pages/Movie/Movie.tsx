@@ -7,6 +7,7 @@ import type { RootState } from "../../store";
 import type { ToastPayload } from "../../types/toastTypes";
 import styles from "../../assets/styles/MediaDetail.module.scss";
 import FullPageSpinner from "../../components/FullPageSpinner/FullPageSpinner";
+import ErrorState from "../../components/ErrorState/ErrorState";
 import MediaCredits from "../../components/MediaCredits/MediaCredits";
 import { useCredits } from "../../hooks/useCredits";
 import { useMovieDetail } from "../../hooks/useMovieDetail";
@@ -68,7 +69,7 @@ function Movie() {
   if (isError || !data) {
     return (
       <div className="container">
-        <div className={styles.state}>Unable to load movie details.</div>
+        <ErrorState message="Unable to load movie details." />
       </div>
     );
   }
@@ -99,7 +100,13 @@ function Movie() {
             imdbRating={data.imdb_rating}
           />
 
-          {isCreditsError ? <div className={styles.state}>Unable to load credits.</div> : <MediaCredits castMembers={castMembers} />}
+          {isCreditsError ? (
+            <div className={styles.stateOffset}>
+              <ErrorState message="Unable to load credits." />
+            </div>
+          ) : (
+            <MediaCredits castMembers={castMembers} />
+          )}
         </div>
       </section>
 

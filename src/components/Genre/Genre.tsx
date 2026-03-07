@@ -14,6 +14,7 @@ import { POSTER_IMAGE_SIZES, POSTER_IMAGE_SIZES_ATTR, buildTmdbImageSrcSet, buil
 import styles from "./Genre.module.scss";
 import imageFallbackLandscape from "../../assets/images/image_fallback_landscape.webp";
 import { useTmdbList } from "../../hooks/useTmdbList";
+import ErrorState from "../ErrorState/ErrorState";
 import LazyMount from "../LazyMount/LazyMount";
 
 function GenreRow({ title, endpoint, withGenres, mediaType }: GenreRowProps) {
@@ -41,7 +42,7 @@ function GenreRow({ title, endpoint, withGenres, mediaType }: GenreRowProps) {
   if (isError) {
     return (
       <div className="container">
-        <div className={styles.state}>Unable to load movies.</div>
+        <ErrorState message="Unable to load movies." />
       </div>
     );
   }

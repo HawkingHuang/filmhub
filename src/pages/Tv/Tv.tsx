@@ -6,6 +6,7 @@ import { deriveTvViewData } from "../../utils/commonUtils";
 import type { RootState } from "../../store";
 import type { ToastPayload } from "../../types/toastTypes";
 import styles from "../../assets/styles/MediaDetail.module.scss";
+import ErrorState from "../../components/ErrorState/ErrorState";
 import FullPageSpinner from "../../components/FullPageSpinner/FullPageSpinner";
 import { useCredits } from "../../hooks/useCredits";
 import { useTvDetail } from "../../hooks/useTvDetail";
@@ -80,7 +81,7 @@ function Tv() {
   if (isError || !data) {
     return (
       <div className="container">
-        <div className={styles.state}>Unable to load tv details.</div>
+        <ErrorState message="Unable to load tv details." />
       </div>
     );
   }
@@ -112,7 +113,13 @@ function Tv() {
             imdbRating={data.imdb_rating}
           />
 
-          {isCreditsError ? <div className={styles.state}>Unable to load credits.</div> : <MediaCredits castMembers={castMembers} />}
+          {isCreditsError ? (
+            <div className={styles.stateOffset}>
+              <ErrorState message="Unable to load credits." />
+            </div>
+          ) : (
+            <MediaCredits castMembers={castMembers} />
+          )}
         </div>
       </section>
 

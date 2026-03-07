@@ -1,5 +1,4 @@
 @use "./mixins" as *;
-@use "./state.module" as *;
 
 .topBlock {
   display: grid;
@@ -12,7 +11,7 @@
     flex-direction: column;
     justify-content: space-between;
 
-    .state {
+    .stateOffset {
       margin-top: 20px;
     }
   }

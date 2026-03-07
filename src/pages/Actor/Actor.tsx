@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import type { ActorCredit } from "../../types/actorTypes";
 import styles from "./Actor.module.scss";
+import ErrorState from "../../components/ErrorState/ErrorState";
 import FullPageSpinner from "../../components/FullPageSpinner/FullPageSpinner";
 import ActorBioSection from "../../components/ActorBioSection/ActorBioSection";
 import ActorCreditsHeader from "../../components/ActorCreditsHeader/ActorCreditsHeader";
@@ -99,7 +100,7 @@ function Actor() {
   if (isError || !actor) {
     return (
       <div className="container">
-        <div className={styles.state}>Unable to load actor details.</div>
+        <ErrorState message="Unable to load actor details." />
       </div>
     );
   }
@@ -112,7 +113,7 @@ function Actor() {
       </section>
 
       {isCreditsError ? (
-        <div className={styles.state}>Unable to load credits.</div>
+        <ErrorState message="Unable to load credits." />
       ) : (
         <section className={styles.creditsSection}>
           <ActorCreditsHeader

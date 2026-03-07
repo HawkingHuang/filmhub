@@ -6,6 +6,7 @@ import { useSearchMulti } from "../../hooks/useSearchMulti";
 import type { SearchMultiResult } from "../../types/searchTypes";
 import styles from "./Search.module.scss";
 import imageFallbackPortrait from "../../assets/images/image_fallback_portrait.webp";
+import ErrorState from "../../components/ErrorState/ErrorState";
 import FullPageSpinner from "../../components/FullPageSpinner/FullPageSpinner";
 import ResultsGrid, { type ResultsGridItem } from "../../components/ResultsGrid";
 import gridStyles from "../../components/ResultsGrid/ResultsGrid.module.scss";
@@ -71,9 +72,9 @@ function Search() {
       <section className={styles.search}>
         <div className={styles.header}>{query && <p className={styles.subtitle}>Results for “{query}”</p>}</div>
 
-        {!query && <div className={styles.state}>Enter a keyword to start searching.</div>}
-        {isError && <div className={styles.state}>Unable to load results.</div>}
-        {!isLoading && !isError && query && visibleResults.length === 0 && <div className={styles.state}>No results found.</div>}
+        {!query && <ErrorState message="Enter a keyword to start searching." />}
+        {isError && <ErrorState message="Unable to load results." />}
+        {!isLoading && !isError && query && visibleResults.length === 0 && <ErrorState message="No results found." />}
 
         {!isLoading && !isError && resultItems.length > 0 && <ResultsGrid items={resultItems} />}
 

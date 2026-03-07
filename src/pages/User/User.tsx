@@ -10,6 +10,7 @@ import type { RootState } from "../../store";
 import imageFallbackPortrait from "../../assets/images/image_fallback_portrait.webp";
 import styles from "./User.module.scss";
 import "react-responsive-pagination/themes/minimal.css";
+import ErrorState from "../../components/ErrorState/ErrorState";
 import FullPageSpinner from "../../components/FullPageSpinner/FullPageSpinner";
 import { readRecentViewFromLocalStorage } from "../../utils/commonUtils";
 import ResultsGrid, { type ResultsGridItem } from "../../components/ResultsGrid";
@@ -101,9 +102,8 @@ function User() {
           </Tabs.List>
 
           <Tabs.Content className={styles.tabContent} value="favorites">
-            {isError && <div className={styles.state}>Unable to load favorites.</div>}
-            {!isLoading && !isError && favorites.length === 0 && <div className={styles.state}>No favorites yet</div>}
-
+            {isError && <ErrorState message="Unable to load favorites." />}
+            {!isLoading && !isError && favorites.length === 0 && <ErrorState message="No favorites yet" />}
             {!isLoading && !isError && favorites.length > 0 && <ResultsGrid items={favoriteItems} />}
 
             {totalPages > 1 && (
@@ -114,7 +114,7 @@ function User() {
           </Tabs.Content>
 
           <Tabs.Content className={styles.tabContent} value="recent">
-            {recentMovies.length === 0 && <div className={styles.state}>No recently viewed movies</div>}
+            {recentMovies.length === 0 && <ErrorState message="No recently viewed movies" />}
             {recentMovies.length > 0 && <ResultsGrid items={recentItems} />}
           </Tabs.Content>
         </Tabs.Root>

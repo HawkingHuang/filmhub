@@ -8,6 +8,7 @@ import styles from "./Genre.module.scss";
 import imageFallbackPortrait from "../../assets/images/image_fallback_portrait.webp";
 import { Select } from "@radix-ui/themes";
 import * as Toast from "@radix-ui/react-toast";
+import ErrorState from "../../components/ErrorState/ErrorState";
 import FullPageSpinner from "../../components/FullPageSpinner/FullPageSpinner";
 import ResultsGrid, { type ResultsGridItem } from "../../components/ResultsGrid";
 import gridStyles from "../../components/ResultsGrid/ResultsGrid.module.scss";
@@ -60,7 +61,7 @@ function Genre() {
         loading: "lazy",
       };
     });
-  }, [results]);
+  }, [detailBasePath, results]);
 
   const handlePageChange = (nextPage: number) => {
     const nextParams = new URLSearchParams(searchParams);
@@ -106,9 +107,9 @@ function Genre() {
           </div>
         )}
 
-        {!safeGenreId && <div className={styles.state}>Invalid genre</div>}
-        {isError && <div className={styles.state}>Unable to load results.</div>}
-        {!isLoading && !isError && safeGenreId > 0 && results.length === 0 && <div className={styles.state}>No results found</div>}
+        {!safeGenreId && <ErrorState message="Invalid genre" />}
+        {isError && <ErrorState message="Unable to load results." />}
+        {!isLoading && !isError && safeGenreId > 0 && results.length === 0 && <ErrorState message="No results found" />}
 
         {!isLoading && !isError && resultItems.length > 0 && safeGenreId && <ResultsGrid items={resultItems} />}
 
