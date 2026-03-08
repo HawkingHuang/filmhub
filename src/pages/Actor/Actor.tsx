@@ -1,6 +1,5 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
-import type { ActorCredit } from "../../types/actorTypes";
 import styles from "./Actor.module.scss";
 import ErrorState from "../../components/ErrorState/ErrorState";
 import FullPageSpinner from "../../components/FullPageSpinner/FullPageSpinner";
@@ -10,9 +9,8 @@ import ActorProfile from "../../components/ActorProfile/ActorProfile";
 import ResultsGrid, { type ResultsGridItem } from "../../components/ResultsGrid";
 import { useActorDetail } from "../../hooks/useActorDetail";
 import { useActorCredits } from "../../hooks/useActorCredits";
+import { deriveActorCreditsView, getActorCreditTitle, type CreditMode } from "../../utils/actorCreditsUtils";
 import imageFallbackPortrait from "../../assets/images/image_fallback_portrait.webp";
-
-type CreditMode = "movie" | "tv";
 
 function Actor() {
   const { id } = useParams();
@@ -26,72 +24,29 @@ function Actor() {
   const [creditYear, setCreditYear] = useState("all");
   const [creditMode, setCreditMode] = useState<CreditMode>("movie");
 
-  // Derived UI helpers
-  const getCreditTitle = (credit: ActorCredit) => (credit.media_type === "tv" ? credit.name : credit.title) ?? "Untitled";
-  const getCreditDate = (credit: ActorCredit) => (credit.media_type === "tv" ? credit.first_air_date : credit.release_date) ?? "";
+  const { creditYears, filteredCredits, yearAriaLabel } = deriveActorCreditsView({
+    credits: creditsData?.cast,
+    creditMode,
+    creditYear,
+    creditQuery,
+  });
 
-  const credits = useMemo(() => creditsData?.cast ?? [], [creditsData]);
-  const movieCredits = useMemo(() => credits.filter((credit) => credit.media_type === "movie"), [credits]);
-  const tvCredits = useMemo(() => credits.filter((credit) => credit.media_type === "tv"), [credits]);
-  const selectedCredits = useMemo(() => (creditMode === "movie" ? movieCredits : tvCredits), [creditMode, movieCredits, tvCredits]);
+  const creditItems: ResultsGridItem[] = filteredCredits.map((credit, index) => {
+    const posterPath = credit.poster_path || credit.backdrop_path || null;
+    const titleText = getActorCreditTitle(credit);
+    const itemKey = `${credit.media_type}-${credit.id}-${credit.credit_id ?? index}`;
 
-  const yearAriaLabel = creditMode === "movie" ? "Filter by year" : "Filter by first aired year";
-
-  const creditYears = useMemo(() => {
-    const years = new Set<string>();
-    selectedCredits.forEach((credit) => {
-      const year = getCreditDate(credit).slice(0, 4);
-      if (year) {
-        years.add(year);
-      }
-    });
-    return Array.from(years).sort((a, b) => b.localeCompare(a));
-  }, [selectedCredits]);
-
-  // sort credits by release/first-air date descending (latest first). Empty dates sort last.
-  const sortedCredits = useMemo(() => {
-    return [...selectedCredits].sort((a, b) => {
-      const da = getCreditDate(a);
-      const db = getCreditDate(b);
-      // ISO date strings compare lexicographically
-      if (da === db) return 0;
-      if (!db) return -1;
-      if (!da) return 1;
-      return db.localeCompare(da);
-    });
-  }, [selectedCredits]);
-
-  const filteredCredits = useMemo(() => {
-    const normalizedQuery = creditQuery.trim().toLowerCase();
-    const yearFiltered = creditYear === "all" ? sortedCredits : sortedCredits.filter((credit) => getCreditDate(credit).startsWith(creditYear));
-
-    if (!normalizedQuery) {
-      return yearFiltered;
-    }
-    return yearFiltered.filter((credit) => {
-      const title = getCreditTitle(credit).toLowerCase();
-      const character = credit.character?.toLowerCase() ?? "";
-      return title.includes(normalizedQuery) || character.includes(normalizedQuery);
-    });
-  }, [creditQuery, creditYear, sortedCredits]);
-
-  const creditItems = useMemo<ResultsGridItem[]>(() => {
-    return filteredCredits.map((credit: ActorCredit, index) => {
-      const posterPath = credit.poster_path || credit.backdrop_path || null;
-      const titleText = getCreditTitle(credit);
-      const itemKey = `${credit.media_type}-${credit.id}-${credit.credit_id ?? index}`;
-      return {
-        id: itemKey,
-        href: credit.media_type === "tv" ? `/tv/${credit.id}` : `/movies/${credit.id}`,
-        title: titleText,
-        imageSrc: imageFallbackPortrait,
-        imagePath: posterPath,
-        imageType: posterPath ? "poster" : undefined,
-        alt: titleText,
-        meta: <div className={styles.creditMeta}>{credit.character || "—"}</div>,
-      };
-    });
-  }, [filteredCredits]);
+    return {
+      id: itemKey,
+      href: credit.media_type === "tv" ? `/tv/${credit.id}` : `/movies/${credit.id}`,
+      title: titleText,
+      imageSrc: imageFallbackPortrait,
+      imagePath: posterPath,
+      imageType: posterPath ? "poster" : undefined,
+      alt: titleText,
+      meta: <div className={styles.creditMeta}>{credit.character || "—"}</div>,
+    };
+  });
 
   if (isLoading) {
     return <FullPageSpinner />;
@@ -130,7 +85,7 @@ function Actor() {
             onQueryChange={setCreditQuery}
             onClearQuery={() => setCreditQuery("")}
           />
-          {creditItems.length > 0 ? <ResultsGrid items={creditItems} /> : <div>No credits found.</div>}
+          {creditItems.length > 0 ? <ResultsGrid items={creditItems} /> : <ErrorState message="No credits found." />}
         </section>
       )}
     </div>
