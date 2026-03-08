@@ -1,18 +1,17 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useMovieGenres } from "../../hooks/useMovieGenres";
 import ResponsivePagination from "react-responsive-pagination";
 import "react-responsive-pagination/themes/minimal.css";
-import type { MovieGenre, TmdbMovie } from "../../types/genreTypes";
 import styles from "./Genre.module.scss";
-import imageFallbackPortrait from "../../assets/images/image_fallback_portrait.webp";
 import { Select } from "@radix-ui/themes";
 import * as Toast from "@radix-ui/react-toast";
 import ErrorState from "../../components/ErrorState/ErrorState";
 import FullPageSpinner from "../../components/FullPageSpinner/FullPageSpinner";
-import ResultsGrid, { type ResultsGridItem } from "../../components/ResultsGrid";
+import ResultsGrid from "../../components/ResultsGrid";
 import gridStyles from "../../components/ResultsGrid/ResultsGrid.module.scss";
 import { useTmdbList } from "../../hooks/useTmdbList";
+import { deriveGenreView } from "../../utils/genreViewUtils";
 
 function Genre() {
   const { id } = useParams();
@@ -27,7 +26,7 @@ function Genre() {
   const endpoint = type === "tv" ? "/discover/tv" : "/discover/movie";
   const detailBasePath = type === "tv" ? "/tv" : "/movies";
 
-  const { data, isLoading, isError } = useTmdbList(
+  const { data: resultsData, isLoading, isError } = useTmdbList(
     endpoint,
     {
       with_genres: String(safeGenreId),
@@ -40,28 +39,12 @@ function Genre() {
 
   const [toastOpen, setToastOpen] = useState(false);
   const [toastContent, setToastContent] = useState<{ title: string; description?: string } | null>(null);
-
-  const genres = useMemo<MovieGenre[]>(() => genresData?.genres ?? [], [genresData]);
-  const currentGenre = useMemo(() => genres.find((genre) => genre.id === safeGenreId), [genres, safeGenreId]);
-
-  const results = useMemo<TmdbMovie[]>(() => data?.results ?? [], [data]);
-  const totalPages = data?.total_pages ?? 0;
-
-  const resultItems = useMemo<ResultsGridItem[]>(() => {
-    return results.map((item) => {
-      const titleText = item.title ?? item.name ?? "Untitled";
-      return {
-        id: item.id,
-        href: `${detailBasePath}/${item.id}`,
-        title: titleText,
-        imageSrc: imageFallbackPortrait,
-        imagePath: item.poster_path ?? null,
-        imageType: item.poster_path ? "poster" : undefined,
-        alt: titleText,
-        loading: "lazy",
-      };
-    });
-  }, [detailBasePath, results]);
+  const { genres, currentGenre, totalPages, resultItems } = deriveGenreView({
+    genresData,
+    resultsData,
+    safeGenreId,
+    detailBasePath,
+  });
 
   const handlePageChange = (nextPage: number) => {
     const nextParams = new URLSearchParams(searchParams);
@@ -109,7 +92,7 @@ function Genre() {
 
         {!safeGenreId && <ErrorState message="Invalid genre" />}
         {isError && <ErrorState message="Unable to load results." />}
-        {!isLoading && !isError && safeGenreId > 0 && results.length === 0 && <ErrorState message="No results found" />}
+        {!isLoading && !isError && safeGenreId > 0 && resultItems.length === 0 && <ErrorState message="No results found" />}
 
         {!isLoading && !isError && resultItems.length > 0 && safeGenreId && <ResultsGrid items={resultItems} />}
 
