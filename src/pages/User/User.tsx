@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { HeartFilledIcon, EyeOpenIcon } from "@radix-ui/react-icons";
 import { Tabs } from "@radix-ui/themes";
 import { useFavorites } from "../../hooks/useFavorites";
@@ -7,14 +7,13 @@ import { useLocation } from "react-router-dom";
 import { PAGE_SIZE } from "../../lib/constants";
 import ResponsivePagination from "react-responsive-pagination";
 import type { RootState } from "../../store";
-import imageFallbackPortrait from "../../assets/images/image_fallback_portrait.webp";
 import styles from "./User.module.scss";
 import "react-responsive-pagination/themes/minimal.css";
 import ErrorState from "../../components/ErrorState/ErrorState";
 import FullPageSpinner from "../../components/FullPageSpinner/FullPageSpinner";
-import { readRecentViewFromLocalStorage } from "../../utils/commonUtils";
-import ResultsGrid, { type ResultsGridItem } from "../../components/ResultsGrid";
+import ResultsGrid from "../../components/ResultsGrid";
 import gridStyles from "../../components/ResultsGrid/ResultsGrid.module.scss";
+import { deriveFavoritesView, deriveRecentMediaView } from "../../utils/userDataUtils";
 
 function User() {
   const user = useSelector((state: RootState) => state.auth.user);
@@ -26,48 +25,12 @@ function User() {
   const [page, setPage] = useState(1);
 
   const { data, isLoading, isError } = useFavorites(userId, { enabled: Boolean(userId) });
-  const favorites = useMemo(() => data ?? [], [data]);
-  const totalPages = Math.ceil(favorites.length / PAGE_SIZE);
-  const pageSafe = totalPages > 0 ? Math.min(page, totalPages) : 1;
-  const pagedFavorites = useMemo(() => {
-    const start = (pageSafe - 1) * PAGE_SIZE;
-    return favorites.slice(start, start + PAGE_SIZE);
-  }, [favorites, pageSafe]);
-
-  const favoriteItems = useMemo<ResultsGridItem[]>(() => {
-    return pagedFavorites.map((item) => {
-      return {
-        id: item.movie_id,
-        href: item.media_type === "movie" ? `/movies/${item.movie_id}` : `/tv/${item.movie_id}`,
-        title: item.title,
-        imageSrc: imageFallbackPortrait,
-        imagePath: item.poster_path ?? null,
-        imageType: item.poster_path ? "poster" : undefined,
-        alt: item.title,
-        loading: "lazy",
-      };
-    });
-  }, [pagedFavorites]);
-
-  const recentMovies = useMemo(() => {
-    if (!tab) return [];
-    return readRecentViewFromLocalStorage();
-  }, [tab]);
-
-  const recentItems = useMemo<ResultsGridItem[]>(() => {
-    return recentMovies.map((item) => {
-      return {
-        id: item.movie_id,
-        href: item.media_type === "movie" ? `/movies/${item.movie_id}` : `/tv/${item.movie_id}`,
-        title: item.title,
-        imageSrc: imageFallbackPortrait,
-        imagePath: item.poster_path ?? null,
-        imageType: item.poster_path ? "poster" : undefined,
-        alt: item.title,
-        loading: "lazy",
-      };
-    });
-  }, [recentMovies]);
+  const { favorites, totalPages, pageSafe, favoriteItems } = deriveFavoritesView({
+    favoritesData: data,
+    page,
+    pageSize: PAGE_SIZE,
+  });
+  const { recentMedia, recentItems } = deriveRecentMediaView(tab);
 
   useEffect(() => {
     if (locationTab === "recent") {
@@ -114,8 +77,8 @@ function User() {
           </Tabs.Content>
 
           <Tabs.Content className={styles.tabContent} value="recent">
-            {recentMovies.length === 0 && <ErrorState message="No recently viewed movies" />}
-            {recentMovies.length > 0 && <ResultsGrid items={recentItems} />}
+            {recentMedia.length === 0 && <ErrorState message="No recently viewed movies" />}
+            {recentMedia.length > 0 && <ResultsGrid items={recentItems} />}
           </Tabs.Content>
         </Tabs.Root>
       </section>
