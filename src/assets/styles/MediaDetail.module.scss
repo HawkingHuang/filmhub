@@ -3,7 +3,7 @@
 .topBlock {
   display: grid;
   grid-template-columns: 320px 1fr;
-  gap: 32px;
+  gap: 20px;
   padding: 24px 0 40px;
 
   .info {
@@ -18,12 +18,12 @@
 
   @include respond-lg {
     grid-template-columns: 1fr;
-    gap: 24px;
+    gap: 20px;
   }
 
   @include respond-md {
     grid-template-columns: 1fr;
-    gap: 24px;
+    gap: 20px;
   }
 
   @include respond-sm {
